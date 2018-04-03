@@ -13,4 +13,5 @@ import org.springframework.stereotype.Repository;
  **/
 @Repository
 public interface UsersDao extends JpaRepository<Users, String> {
+    Users findByStateAndPhone(Integer state, String phone);
 }

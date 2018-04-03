@@ -12,4 +12,6 @@ public interface NoticeService {
     int update(Notice notice) throws IllegalAccessException, InstantiationException;
 
     int delete(Notice notice);
+
+    int deleteByid(String id);
 }

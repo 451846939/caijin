@@ -12,4 +12,6 @@ public interface CollectionService {
     int update(Collection collection) throws IllegalAccessException, InstantiationException;
 
     int delete(Collection collection);
+
+    int deleteByid(String id);
 }

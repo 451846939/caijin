@@ -45,6 +45,10 @@ public class Users implements Serializable {
     @Column(length = 64)
     private String nickname;
     /**
+     * 用户性别
+     */
+    private Integer sex;
+    /**
      * 用户角色id
      */
     @Column(length = 64)
@@ -97,6 +101,5 @@ public class Users implements Serializable {
     /**
      * 投稿数
      */
-
     private Integer contributions;
 }

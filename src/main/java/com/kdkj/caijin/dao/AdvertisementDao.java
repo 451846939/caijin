@@ -4,6 +4,8 @@ import com.kdkj.caijin.entity.Advertisement;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
+
 /**
  * 广告表dao
  *
@@ -12,4 +14,5 @@ import org.springframework.stereotype.Repository;
  **/
 @Repository
 public interface AdvertisementDao extends JpaRepository<Advertisement, String> {
+    List<Advertisement> findByPosition(String position);
 }

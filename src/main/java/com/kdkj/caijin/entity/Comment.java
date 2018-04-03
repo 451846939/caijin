@@ -57,4 +57,8 @@ public class Comment implements Serializable {
      */
     @Column(length = 64)
     private String informationid;
+    /**
+     * 审核状态0表示通过1表示没通过
+     */
+    private Integer examine;
 }

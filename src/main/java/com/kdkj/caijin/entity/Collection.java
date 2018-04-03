@@ -27,6 +27,9 @@ public class Collection implements Serializable {
     @Column(length = 64)
     /**用户id*/
     private String userid;
+    @Column(length = 64)
+    /**新闻id*/
+    private String informationid;
     @Temporal(TemporalType.TIMESTAMP)
     /**创建时间*/
     private Date time;

@@ -1,9 +1,5 @@
 package com.kdkj.caijin.util;
 
-import com.kdkj.caijin.entity.Pageinfo;
-import com.kdkj.caijin.vo.PageVo;
-import org.springframework.data.domain.Page;
-
 import java.beans.IntrospectionException;
 import java.beans.PropertyDescriptor;
 import java.lang.reflect.Field;
@@ -80,14 +76,5 @@ public class CopyObj {
 
     }
 
-    public static PageVo getInfoInPageinfo(Page page) {
-        PageVo pageVo = new PageVo();
-        Pageinfo pageinfo = pageVo.getPageinfo();
-        pageinfo.setPageNum(page.getNumber());
-        pageinfo.setPageSize(page.getSize());
-        pageinfo.setTotalElements(page.getTotalElements());
-        pageinfo.setTotalPages(page.getTotalPages());
-        pageVo.setContent(page.getContent());
-        return pageVo;
-    }
+
 }

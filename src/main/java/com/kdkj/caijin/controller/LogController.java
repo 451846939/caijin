@@ -3,11 +3,10 @@ package com.kdkj.caijin.controller;
 import com.kdkj.caijin.entity.Log;
 import com.kdkj.caijin.entity.Pageinfo;
 import com.kdkj.caijin.service.LogService;
-import com.kdkj.caijin.util.CopyObj;
+import com.kdkj.caijin.util.PageUtis;
 import com.kdkj.caijin.util.Result;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
-import io.swagger.annotations.ApiModel;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -35,9 +34,9 @@ public class LogController {
     public Result findAll(Pageinfo pageinfo) {
         Page<Log> logs = logService.logSelectAll(new PageRequest(pageinfo.getPageNum(),
                 pageinfo.getPageSize(),
-                Sort.Direction.ASC,
+                Sort.Direction.DESC,
                 pageinfo.getOrderBy() == null ? "id" : pageinfo.getOrderBy()));
-        return Result.ok("成功", CopyObj.getInfoInPageinfo(logs));
+        return Result.ok("成功", PageUtis.getInfoInPageinfo(logs));
     }
 
     @PostMapping("/update")
@@ -64,6 +63,6 @@ public class LogController {
                 pageinfo.getPageSize(),
                 Sort.Direction.ASC,
                 pageinfo.getOrderBy() == null ? "id" : pageinfo.getOrderBy()), opType);
-        return Result.ok("成功", CopyObj.getInfoInPageinfo(logs));
+        return Result.ok("成功", PageUtis.getInfoInPageinfo(logs));
     }
 }

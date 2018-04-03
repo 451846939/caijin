@@ -33,11 +33,11 @@ public class Files implements Serializable {
     /**
      * 名字
      */
-    @Column(length = 30)
+    @Column(length = 255)
     private String name;
     /**
      * 新名字
      */
-    @Column(length = 30)
+    @Column(length = 255)
     private String newname;
 }

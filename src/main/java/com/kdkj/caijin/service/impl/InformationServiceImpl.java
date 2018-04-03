@@ -7,8 +7,12 @@ import com.kdkj.caijin.util.CopyObj;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
+
+import java.util.List;
 
 @Service
 @Transactional
@@ -31,10 +35,29 @@ public class InformationServiceImpl implements InformationService {
     }
 
     @Override
+    public List<Information> findAll() {
+        return informationDao.findAll();
+    }
+
+    @Override
     public int update(Information information) throws IllegalAccessException, InstantiationException {
         if (information != null) {
             Information oldInformation = informationDao.findById(information.getId()).get();
             CopyObj.copyObjNotNullFieldsAsObj(information, oldInformation);
+            return 1;
+        }
+        return 0;
+    }
+
+    @Override
+    public Page<Information> findAllByTitleContaining(String title, Pageable pageable) {
+        return informationDao.findAllByTitleContaining(title, pageable);
+    }
+
+    @Override
+    public int deleteById(String id) {
+        if (!StringUtils.isEmpty(id)) {
+            informationDao.deleteById(id);
             return 1;
         }
         return 0;

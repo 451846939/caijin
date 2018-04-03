@@ -1,6 +1,8 @@
 package com.kdkj.caijin.dao;
 
 import com.kdkj.caijin.entity.Opinion;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -13,4 +15,5 @@ import org.springframework.stereotype.Repository;
  **/
 @Repository
 public interface OpinionDao extends JpaRepository<Opinion, String> {
+    Page<Opinion> findByUseridAndAnswer(String userid, Integer answer, Pageable pageable);
 }

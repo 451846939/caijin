@@ -8,7 +8,7 @@ import java.io.Serializable;
 import java.util.Date;
 
 /**
- * 快讯表
+ * 快讯表(通知)
  *
  * @author lin
  * @create 2018-03-29 18:53
@@ -29,14 +29,18 @@ public class Notice implements Serializable {
     @Column(length = 255)
     private String content;
     /**
-     * 文字颜色
+     * 文字颜色0表示红色1表示黄色2表示蓝色3表示绿色
      */
     private Integer colour;
     @Temporal(TemporalType.TIMESTAMP)
     /**时间*/
     private Date time;
     /**
-     * 星级
+     * 关键词
+     */
+    private String keyword;
+    /**
+     * 星级按照数字表示星级
      */
     private Integer star;
 }

@@ -76,6 +76,14 @@ spring:
     default-property-inclusion: non_null
   application:
     name: caijin
+  servlet:
+    multipart:
+      max-file-size: 10Mb
+      max-request-size: 10Mb
+  resources:
+    static-locations: classpath:/resources/,classpath:/static/,file:${web.multipart-path}
+web:
+  multipart-path: ./src/main/resources/static/files/
   #»’÷æ
 logging:
   config: classpath:logback-spring.xml
