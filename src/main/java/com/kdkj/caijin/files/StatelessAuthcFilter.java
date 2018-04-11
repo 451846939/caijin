@@ -25,19 +25,13 @@ public class StatelessAuthcFilter extends AccessControlFilter {
 
     @Override
     protected boolean isAccessAllowed(ServletRequest request, ServletResponse response, Object mappedValue) throws Exception {
-        return false;
-    }
-
-    @Override
-    protected boolean onAccessDenied(ServletRequest request, ServletResponse response) throws Exception {
-        log.info("你需要登录");
         if (SecurityUtils.getSubject().getPrincipal() == null) {
             HttpServletResponse resp = (HttpServletResponse) response;
             HttpServletRequest req = (HttpServletRequest) request;
             String token = req.getHeader("token");
             if (!StringUtils.isEmpty(token)) {
                 try {
-                    getSubject(request, response).login(new UsernamePasswordToken(ShiroEncryptionUtils.getBase64Decrypt(token), token));
+                    getSubject(request, response).login(new UsernamePasswordToken(ShiroEncryptionUtils.getBase64Decrypt(token), token, "0"));
                     return true;
                 } catch (Exception e) {
                     resp.getWriter().write(JSON.toJSONString(Result.error(550, "你还没有登录或登录已过期，请重新登录！")));
@@ -46,5 +40,25 @@ public class StatelessAuthcFilter extends AccessControlFilter {
             return false;
         }
         return true;
+    }
+
+    @Override
+    protected boolean onAccessDenied(ServletRequest request, ServletResponse response) throws Exception {
+//        log.info("你需要登录");
+//        if (SecurityUtils.getSubject().getPrincipal() == null) {
+//            HttpServletResponse resp = (HttpServletResponse) response;
+//            HttpServletRequest req = (HttpServletRequest) request;
+//            String token = req.getHeader("token");
+//            if (!StringUtils.isEmpty(token)) {
+//                try {
+//                    getSubject(request, response).login(new UsernamePasswordToken(ShiroEncryptionUtils.getBase64Decrypt(token), token));
+//                    return true;
+//                } catch (Exception e) {
+//                    resp.getWriter().write(JSON.toJSONString(Result.error(550, "你还没有登录或登录已过期，请重新登录！")));
+//                }
+//            }
+//            return false;
+//        }
+        return false;
     }
 }

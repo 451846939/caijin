@@ -36,6 +36,7 @@ public class PwdRealm extends AuthorizingRealm {
     @Override
     protected AuthorizationInfo doGetAuthorizationInfo(PrincipalCollection principals) {
 //		StoresList user = (StoresList) principals.getPrimaryPrincipal();
+
         Users users = (Users) principals.getPrimaryPrincipal();
         String role = users.getRole();
         if (StringUtils.isEmpty(role)) {

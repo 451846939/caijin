@@ -35,7 +35,6 @@ public class TemporaryInformationController {
     private NewsCrawler newsCrawler;
     @Autowired
     private InformationService informationService;
-
     @PostMapping("/addInformation")
     public Result addInformation(@RequestBody String id) {
         try {
@@ -48,7 +47,6 @@ public class TemporaryInformationController {
             return Result.error(e.getMessage());
         }
     }
-
     @PostMapping("/addAll")
     public Result addAll() {
         try {
@@ -65,13 +63,11 @@ public class TemporaryInformationController {
             return Result.error(e.getMessage());
         }
     }
-
     @GetMapping("/findAll")
     public Result findAll(Pageinfo pageinfo) {
         Page<TemporaryInformation> all = temporaryInformationService.findAll(PageUtis.getPageRequest(pageinfo, Sort.Direction.ASC));
         return Result.ok("成功", PageUtis.getInfoInPageinfo(all));
     }
-
     @DeleteMapping("/deleteAll")
     public Result deleteAll() {
         try {
@@ -82,6 +78,11 @@ public class TemporaryInformationController {
         }
     }
 
+    //    @DeleteMapping()
+//    public Result success(){
+//        temporaryInformationService.deleteAll();
+//        return Result.ok();
+//    }
     @PostMapping("/satrt")
     public Result start(@RequestBody CrawlerElementVo crawlerElementVo) {
         Integer crawlerWebsite = crawlerElementVo.getCrawlerWebsite();
@@ -137,14 +138,14 @@ public class TemporaryInformationController {
 
             List<Information> bySourceNotNull = informationService.findBySourceNotNull();
             Object[] objects = bySourceNotNull.stream().filter(e -> nextItem.url().equals(e)).toArray();
-            System.out.println("nextItem" + nextItem);
+//            System.out.println("nextItem"+nextItem);
             if (objects.length != 0) {
                 return null;
             } else {
                 return nextItem;
             }
         });
-        newsCrawler.setThreads(10);
+        newsCrawler.setThreads(200);
         if (crawlerElementVo.getClimbNum() == 0) {
             crawlerElementVo.setClimbNum(10);
         }

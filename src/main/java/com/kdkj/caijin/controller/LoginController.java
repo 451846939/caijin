@@ -47,7 +47,7 @@ public class LoginController {
                 return Result.error("没有此账号");
             }
             usersService.updateByToken(token, users.getId());
-            SecurityUtils.getSubject().login(new UsernamePasswordToken(loginVo.getPhone(), token));
+            SecurityUtils.getSubject().login(new UsernamePasswordToken(loginVo.getPhone(), token, "1"));
             return Result.ok("登录成功", token);
         }
         return Result.error("验证码错误");
@@ -77,7 +77,7 @@ public class LoginController {
     public Result adminLogin(@RequestBody UsersVo usersVo) {
         try {
             String simpleHash = new SimpleHash("SHA-1", usersVo.getPassword()).toString();
-            SecurityUtils.getSubject().login(new UsernamePasswordToken(usersVo.getPhone(), simpleHash));
+            SecurityUtils.getSubject().login(new UsernamePasswordToken(usersVo.getPhone(), simpleHash, "2"));
             return Result.ok("登录成功", SecurityUtils.getSubject().getPrincipal());
         } catch (AuthenticationException e) {
             e.printStackTrace();
