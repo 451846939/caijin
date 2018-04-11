@@ -49,11 +49,11 @@ public class Opinion implements Serializable {
     @Temporal(TemporalType.TIMESTAMP)
     private Date updateTime;
     /**
-     * 是否被查看
+     * 是否被查看SEE(1, "被查看"), NOT_SEE(0, "未被查看"),
      */
     private Integer see;
     /**
-     * 是否回复
+     * 是否回复ANSWER(1, "被回复"), NOT_ANSWER(0, "未被回复");
      */
     private Integer answer;
 }

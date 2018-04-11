@@ -34,7 +34,7 @@ public class Comment implements Serializable {
     @Column(length = 255)
     private String content;
     /**
-     * 本表id表明上一条
+     * 本表id表明上一条 为空表示没有上一条
      */
     @Column(length = 64)
     private String commentid;
@@ -58,7 +58,7 @@ public class Comment implements Serializable {
     @Column(length = 64)
     private String informationid;
     /**
-     * 审核状态0表示通过1表示没通过
+     * 审核状态0表示未通过1表示通过
      */
     private Integer examine;
 }

@@ -18,7 +18,9 @@ public interface ContributionsService {
 
     Integer countByAdopt(Integer adopt);
 
-    int insertContributionsAndFile(Contributions contributions, MultipartFile multipartFile, String path) throws IOException;
+    Contributions insertContributionsAndFile(Contributions contributions, MultipartFile multipartFile, String path) throws IOException;
 
     int delete(Contributions contributions);
+
+    Contributions findById(String id);
 }

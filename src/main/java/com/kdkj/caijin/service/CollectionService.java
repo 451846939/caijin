@@ -7,11 +7,13 @@ import org.springframework.data.domain.PageRequest;
 public interface CollectionService {
     Page<Collection> findAll(PageRequest pageRequest);
 
-    int insert(Collection collection);
+    Collection insert(Collection collection);
 
     int update(Collection collection) throws IllegalAccessException, InstantiationException;
 
     int delete(Collection collection);
 
     int deleteByid(String id);
+
+    Page<Collection> findAllById(String userid, PageRequest pageRequest);
 }

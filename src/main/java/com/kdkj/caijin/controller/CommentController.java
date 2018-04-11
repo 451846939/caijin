@@ -6,6 +6,8 @@ import com.kdkj.caijin.service.CommentService;
 import com.kdkj.caijin.util.PageUtis;
 import com.kdkj.caijin.util.Result;
 import com.kdkj.caijin.vo.CommentVo;
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiImplicitParams;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Sort;
@@ -25,8 +27,13 @@ public class CommentController {
 
     @PostMapping("/add")
     public Result addComment(@RequestBody Comment comment) {
-        commentService.insert(comment);
-        return Result.ok("成功", comment);
+        Comment insert = null;
+        try {
+            insert = commentService.insert(comment);
+        } catch (Exception e) {
+            return Result.error(e.getMessage());
+        }
+        return Result.ok("成功", insert);
     }
 
     @PostMapping("/update")
@@ -35,11 +42,17 @@ public class CommentController {
             commentService.update(comment);
             return Result.ok();
         } catch (Exception e) {
-            e.printStackTrace();
-            return Result.error();
+            return Result.error(e.getMessage());
         }
     }
 
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "pageNum", value = "页数", dataType = "int", paramType = "query", required = false),
+            @ApiImplicitParam(name = "pageSize", value = "页长度", dataType = "int", paramType = "query", required = true),
+            @ApiImplicitParam(name = "informationid", value = "新闻id", dataType = "String", paramType = "query", required = true),
+            @ApiImplicitParam(name = "orderBy", value = "按什么排序", dataType = "int", paramType = "query", required = false)
+
+    })
     /**
      * 根据一条新闻进行分页查询出来的数据中装有评论
      */
@@ -49,6 +62,12 @@ public class CommentController {
         return Result.ok("成功", PageUtis.getInfoInPageinfo(byInformationidAndCommentid));
     }
 
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "pageNum", value = "页数", dataType = "int", paramType = "query", required = false),
+            @ApiImplicitParam(name = "pageSize", value = "页长度", dataType = "int", paramType = "query", required = true),
+            @ApiImplicitParam(name = "orderBy", value = "按什么排序", dataType = "int", paramType = "query", required = false)
+
+    })
     @GetMapping("/findAll")
     public Result findAll(Pageinfo pageinfo) {
         Page<Comment> all = commentService.findAll(PageUtis.getPageRequest(pageinfo, Sort.Direction.DESC));
@@ -61,6 +80,12 @@ public class CommentController {
         return Result.ok();
     }
 
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "pageNum", value = "页数", dataType = "int", paramType = "query", required = false),
+            @ApiImplicitParam(name = "pageSize", value = "页长度", dataType = "int", paramType = "query", required = true),
+            @ApiImplicitParam(name = "content", value = "内容", dataType = "String", paramType = "query", required = true),
+            @ApiImplicitParam(name = "orderBy", value = "按什么排序", dataType = "int", paramType = "query", required = false)
+    })
     @GetMapping("/findByContent")
     public Result findByContent(String content, Pageinfo pageinfo) {
         Page<Comment> byContent = commentService.findByContent(content, PageUtis.getPageRequest(pageinfo, Sort.Direction.DESC));

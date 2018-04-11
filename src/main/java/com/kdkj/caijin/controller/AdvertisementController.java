@@ -4,11 +4,10 @@ import com.kdkj.caijin.entity.Advertisement;
 import com.kdkj.caijin.entity.Pageinfo;
 import com.kdkj.caijin.service.AdvertisementService;
 import com.kdkj.caijin.util.Result;
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiImplicitParams;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
@@ -31,6 +30,9 @@ public class AdvertisementController {
         return Result.ok("成功", advertisementAll);
     }
 
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "position", value = "位置信息", dataType = "String", paramType = "query", required = true),
+    })
     @GetMapping("/findByPosition")
     public Result findByPosition(String position) {
         List<Advertisement> byPosition = advertisementService.findByPosition(position);
@@ -38,9 +40,9 @@ public class AdvertisementController {
     }
 
     @PostMapping("/add")
-    public Result addAdvertisement(Advertisement advertisement) {
+    public Result addAdvertisement(@RequestBody Advertisement advertisement) {
         advertisementService.insert(advertisement);
-        return Result.ok();
+        return Result.ok("成功", advertisement);
     }
 
     @PostMapping("/update")
@@ -48,7 +50,7 @@ public class AdvertisementController {
         try {
             advertisementService.updateHaveFiles(advertisement, file);
         } catch (Exception e) {
-            e.printStackTrace();
+            return Result.error(e.getMessage());
         }
         return Result.ok();
     }

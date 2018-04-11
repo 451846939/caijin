@@ -7,6 +7,8 @@ import com.kdkj.caijin.enums.UsersInfo;
 import com.kdkj.caijin.service.UsersService;
 import com.kdkj.caijin.util.PageUtis;
 import com.kdkj.caijin.util.Result;
+import com.kdkj.caijin.vo.LoginVo;
+import com.kdkj.caijin.vo.UpdatePhoneVo;
 import com.kdkj.caijin.vo.UsersVo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -15,6 +17,7 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.Date;
 
 /**
@@ -39,26 +42,29 @@ public class UsersController {
      * 注册
      */
     @PostMapping("/register")
-    public Result addUsers(@RequestBody String phone) {
-        Users users = new Users();
-        try {
-            if (StringUtils.isEmpty(phone)) {
-                return Result.error("电话不能为空");
+    public Result addUsers(@RequestBody LoginVo loginVo, HttpServletRequest request) {
+        String yzm = (String) request.getSession().getAttribute("yzm");
+        if (yzm.equals(loginVo.getYzm())) {
+            Users users = new Users();
+            try {
+                if (StringUtils.isEmpty(loginVo.getPhone())) {
+                    return Result.error("电话不能为空");
+                }
+                users.setPhone(loginVo.getPhone());
+                users.setProhibit(UsersInfo.NOT_PROHIBIT.getCode());
+                users.setState(UsersInfo.STATE.getCode());
+                users.setAuthentication(UsersInfo.NOT_AUTHENTICATION.getCode());
+                users.setIntegral(0);
+                users.setCreatetime(new Date());
+                users.setContributions(0);
+                users.setSex(UsersInfo.MAN.getCode());
+                usersService.insert(users);
+                return Result.ok("成功", users);
+            } catch (Exception e) {
+                return Result.error(e.getMessage());
             }
-            users.setPhone(phone);
-            users.setProhibit(UsersInfo.NOT_PROHIBIT.getCode());
-            users.setState(UsersInfo.STATE.getCode());
-            users.setAuthentication(UsersInfo.NOT_AUTHENTICATION.getCode());
-            users.setIntegral(0);
-            users.setCreatetime(new Date());
-            users.setContributions(0);
-            users.setSex(UsersInfo.MAN.getCode());
-            usersService.insert(users);
-            return Result.ok("成功", users);
-        } catch (Exception e) {
-            e.printStackTrace();
-            return Result.error(e.getMessage());
         }
+        return Result.error("验证码错误");
     }
 
     /**
@@ -67,10 +73,9 @@ public class UsersController {
     @PostMapping("/uploadIdcar")
     public Result uploadIdcar(String userid, MultipartFile file) {
         try {
-            Files files = usersService.uploadIdcar(userid, file);
+            Files files = usersService.updateUploadIdcar(userid, file);
             return Result.ok("成功", files);
         } catch (Exception e) {
-            e.printStackTrace();
             return Result.error(e.getMessage());
         }
 
@@ -82,10 +87,9 @@ public class UsersController {
     @PostMapping("/uploadHeadurl")
     public Result uploadHeadurl(String userid, MultipartFile file) {
         try {
-            Files files = usersService.uploadHeadurl(userid, file);
+            Files files = usersService.updateUploadHeadurl(userid, file);
             return Result.ok("成功", files);
         } catch (Exception e) {
-            e.printStackTrace();
             return Result.error(e.getMessage());
         }
     }
@@ -97,20 +101,32 @@ public class UsersController {
             usersService.updateUsersByVo(usersVo);
             return Result.ok();
         } catch (Exception e) {
-            e.printStackTrace();
-            return Result.error();
+            return Result.error(e.getMessage());
         }
     }
 
     @PostMapping("/updatePhone")
-    public Result updatePhone(@RequestBody UsersVo usersVo) {
-        usersService.updateByPhone(usersVo.getPhone(), usersVo.getId());
-        return Result.ok();
+    public Result updatePhone(@RequestBody UpdatePhoneVo updatePhoneVo, HttpServletRequest request) {
+        String yzm = (String) request.getSession().getAttribute("yzm");
+        if (!yzm.equals(updatePhoneVo.getYzm())) {
+            return Result.error("验证码错误");
+        }
+        try {
+            usersService.updateByPhone(updatePhoneVo.getPhone(), updatePhoneVo.getId());
+            return Result.ok();
+        } catch (Exception e) {
+            return Result.error(e.getMessage());
+        }
     }
 
     @PostMapping("/updatePwd")
     public Result updatePwd(@RequestBody UsersVo usersVo) {
-        usersService.updateByPwd(usersVo.getPassword(), usersVo.getId());
-        return Result.ok();
+        try {
+            usersService.updateByPwd(usersVo.getPassword(), usersVo.getId());
+            return Result.ok();
+        } catch (Exception e) {
+            return Result.error(e.getMessage());
+        }
     }
+
 }

@@ -8,7 +8,7 @@ import org.springframework.data.domain.Pageable;
 public interface OpinionService {
     Page<Opinion> findAll(PageRequest pageRequest);
 
-    int insert(Opinion opinion);
+    Opinion insert(Opinion opinion);
 
     int update(Opinion opinion) throws IllegalAccessException, InstantiationException;
 

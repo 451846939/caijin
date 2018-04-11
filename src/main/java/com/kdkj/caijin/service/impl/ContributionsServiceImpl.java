@@ -2,8 +2,10 @@ package com.kdkj.caijin.service.impl;
 
 import com.kdkj.caijin.dao.ContributionsDao;
 import com.kdkj.caijin.dao.FilesDao;
+import com.kdkj.caijin.dao.UsersDao;
 import com.kdkj.caijin.entity.Contributions;
 import com.kdkj.caijin.entity.Files;
+import com.kdkj.caijin.enums.ContributionsAdopt;
 import com.kdkj.caijin.service.ContributionsService;
 import com.kdkj.caijin.util.CopyObj;
 import com.kdkj.caijin.util.ErrMsgException;
@@ -21,6 +23,7 @@ import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @Transactional
@@ -29,7 +32,8 @@ public class ContributionsServiceImpl implements ContributionsService {
     private ContributionsDao contributionsDao;
     @Autowired
     private FilesDao filesDao;
-
+    @Autowired
+    private UsersDao usersDao;
     @Override
     public Page<Contributions> findAll(PageRequest pageRequest) {
         return contributionsDao.findAll(pageRequest);
@@ -47,7 +51,12 @@ public class ContributionsServiceImpl implements ContributionsService {
     @Override
     public int update(Contributions contributions) throws IllegalAccessException, InstantiationException {
         if (contributions != null) {
-            Contributions oldContributions = contributionsDao.findById(contributions.getId()).get();
+            Optional<Contributions> byId = contributionsDao.findById(contributions.getId());
+            if (!byId.isPresent()) {
+                throw new ErrMsgException("没有该id");
+            }
+            Contributions oldContributions = byId.get();
+
             CopyObj.copyObjNotNullFieldsAsObj(contributions, oldContributions);
             return 1;
         }
@@ -57,7 +66,11 @@ public class ContributionsServiceImpl implements ContributionsService {
     @Override
     public int deleteById(String id) throws IOException {
         if (!StringUtils.isEmpty(id)) {
-            Contributions contributions = contributionsDao.findById(id).get();
+            Optional<Contributions> byId = contributionsDao.findById(id);
+            if (!byId.isPresent()) {
+                throw new ErrMsgException("该id不存在");
+            }
+            Contributions contributions = byId.get();
             String filepath = contributions.getFilepath();
             Files files = filesDao.findById(filepath).get();
             new File(files.getPath()).delete();
@@ -75,9 +88,18 @@ public class ContributionsServiceImpl implements ContributionsService {
     }
 
     @Override
-    public int insertContributionsAndFile(Contributions contributions, MultipartFile multipartFile, String path) throws IOException {
+    public Contributions insertContributionsAndFile(Contributions contributions, MultipartFile multipartFile, String path) throws IOException {
         if (contributions != null && multipartFile != null) {
+            if (StringUtils.isEmpty(contributions.getUserid())) {
+                throw new ErrMsgException("用户id不能为空");
+            }
+            if (!usersDao.findById(contributions.getUserid()).isPresent()) {
+                throw new ErrMsgException("该用户不存在");
+            }
+            contributions.setAdopt(ContributionsAdopt.WAIT.getCode());
+            contributions.setCreatetime(new Date());
 //            FileUtils.forceMkdirParent();
+            contributions.setCreatetime(new Date());
             File file = new File(path);
             if (!file.exists()) {
                 file.mkdir();
@@ -90,11 +112,11 @@ public class ContributionsServiceImpl implements ContributionsService {
             files.setPath(path);
             filesDao.save(files);
             contributions.setFilepath(files.getId());
-            contributionsDao.save(contributions);
+            Contributions save = contributionsDao.save(contributions);
             FileCopyUtils.
                     copy(multipartFile.getBytes(),
                             new File(path + filename));
-            return 1;
+            return save;
         }
         throw new ErrMsgException("文件不能为空");
     }
@@ -102,9 +124,17 @@ public class ContributionsServiceImpl implements ContributionsService {
     @Override
     public int delete(Contributions contributions) {
         if (contributions != null) {
+            if (!contributionsDao.findById(contributions.getId()).isPresent()) {
+                throw new ErrMsgException("该id不存在");
+            }
             contributionsDao.delete(contributions);
             return 1;
         }
         return 0;
+    }
+
+    @Override
+    public Contributions findById(String id) {
+        return contributionsDao.findById(id).get();
     }
 }

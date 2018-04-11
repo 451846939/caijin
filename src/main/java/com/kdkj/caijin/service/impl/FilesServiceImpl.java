@@ -60,7 +60,7 @@ public class FilesServiceImpl implements FilesService {
     }
 
     @Override
-    public Files upload(MultipartFile file) throws IOException {
+    public Files updateUpload(MultipartFile file) throws IOException {
         File newfile = new File(path);
         if (!newfile.exists()) {
             newfile.mkdir();
@@ -76,6 +76,11 @@ public class FilesServiceImpl implements FilesService {
                 copy(file.getBytes(),
                         new File(path + filename));
         return files;
+    }
+
+    @Override
+    public Files findById(String id) {
+        return filesDao.findById(id).get();
     }
 
     @Override

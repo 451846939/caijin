@@ -27,7 +27,7 @@ public class Information implements Serializable {
     /**
      * 标题
      */
-    @Column(length = 30)
+    @Column(columnDefinition = "text")
     private String title;
     /**
      * 类型
@@ -69,6 +69,11 @@ public class Information implements Serializable {
      */
     @Column(columnDefinition = "text")
     private String content;
+    /**
+     * 爬取的内容html
+     */
+    @Column(columnDefinition = "text")
+    private String html;
     /**
      * 是否草稿
      */

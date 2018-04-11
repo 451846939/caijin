@@ -38,12 +38,11 @@ public class ContributionsController {
 //        String realPath = request.getSession().getServletContext().getRealPath("files/");
 
         try {
-            contributionsService.insertContributionsAndFile(contributions, file, path);
-        } catch (IOException e) {
-            e.printStackTrace();
-            return Result.error();
+            Contributions save = contributionsService.insertContributionsAndFile(contributions, file, path);
+            return Result.ok("成功", save);
+        } catch (Exception e) {
+            return Result.error(e.getMessage());
         }
-        return Result.ok("成功", contributions);
     }
 
     @ApiImplicitParams({
@@ -65,8 +64,8 @@ public class ContributionsController {
     public Result update(@RequestBody Contributions contributions) {
         try {
             contributionsService.update(contributions);
-        } catch (IllegalAccessException | InstantiationException e) {
-            e.printStackTrace();
+        } catch (Exception e) {
+            return Result.error(e.getMessage());
         }
         return Result.ok().put("adoptCount", getAdoptCount());
     }
@@ -75,9 +74,8 @@ public class ContributionsController {
     public Result delete(@PathVariable("id") String id) {
         try {
             contributionsService.deleteById(id);
-        } catch (IOException e) {
-            e.printStackTrace();
-            return Result.error();
+        } catch (Exception e) {
+            return Result.error(e.getMessage());
         }
         return Result.ok().put("adoptCount", getAdoptCount());
     }

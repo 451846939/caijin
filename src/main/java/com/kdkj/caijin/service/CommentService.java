@@ -11,7 +11,7 @@ import java.util.List;
 public interface CommentService {
     Page<Comment> findAll(PageRequest pageRequest);
 
-    int insert(Comment comment);
+    Comment insert(Comment comment);
 
     int update(Comment comment) throws IllegalAccessException, InstantiationException;
 

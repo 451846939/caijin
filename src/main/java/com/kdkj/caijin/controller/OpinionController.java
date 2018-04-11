@@ -56,13 +56,21 @@ public class OpinionController {
 
     @PostMapping("/add")
     public Result add(@RequestBody Opinion opinion) {
-        opinionService.insert(opinion);
-        return Result.ok("成功", opinion);
+        try {
+            Opinion insert = opinionService.insert(opinion);
+            return Result.ok("成功", insert);
+        } catch (Exception e) {
+            return Result.error(e.getMessage());
+        }
     }
 
-    @GetMapping("/delete/{id}")
+    @DeleteMapping("/delete/{id}")
     public Result delete(@PathVariable("id") String id) {
-        opinionService.deleteById(id);
-        return Result.ok();
+        try {
+            opinionService.deleteById(id);
+            return Result.ok();
+        } catch (Exception e) {
+            return Result.error(e.getMessage());
+        }
     }
 }

@@ -50,4 +50,19 @@ public class CommentVo {
      * 子回复
      */
     private List<CommentVo> childrenComment;
+
+    public CommentVo() {
+    }
+
+    public CommentVo(String id, String userid, String content, String commentid, Date createtime, Date updatetime, Integer praise, String informationid, Integer examine) {
+        this.id = id;
+        this.userid = userid;
+        this.content = content;
+        this.commentid = commentid;
+        this.createtime = createtime;
+        this.updatetime = updatetime;
+        this.praise = praise;
+        this.informationid = informationid;
+        this.examine = examine;
+    }
 }

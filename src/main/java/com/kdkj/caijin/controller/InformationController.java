@@ -26,6 +26,7 @@ public class InformationController {
 
     @PostMapping("/add")
     public Result addInfoemation(@RequestBody Information information) {
+        information.setSource(null);
         informationService.insert(information);
         return Result.ok("成功", information);
     }
@@ -44,8 +45,8 @@ public class InformationController {
     @ApiImplicitParams({
             @ApiImplicitParam(name = "pageNum", value = "页数", dataType = "int", paramType = "query", required = false),
             @ApiImplicitParam(name = "pageSize", value = "页长度", dataType = "int", paramType = "query", required = true),
-            @ApiImplicitParam(name = "title", value = "错误类型", dataType = "String", paramType = "query", required = true),
-            @ApiImplicitParam(name = "orderBy", value = "按什么排序", dataType = "int", paramType = "query", required = false)
+            @ApiImplicitParam(name = "title", value = "标题", dataType = "String", paramType = "query", required = true),
+            @ApiImplicitParam(name = "orderBy", value = "按什么排序", dataType = "String", paramType = "query", required = false)
     })
     @GetMapping("/findByTitle")
     public Result findByTitle(String title, Pageinfo pageinfo) {
@@ -58,19 +59,19 @@ public class InformationController {
         try {
             informationService.update(information);
             return Result.ok("成功");
-        } catch (IllegalAccessException | InstantiationException e) {
-            e.printStackTrace();
-            return Result.error();
+        } catch (Exception e) {
+            return Result.error(e.getMessage());
         }
     }
 
     @DeleteMapping("/delete/{id}")
     public Result delete(@PathVariable("id") String id) {
-        int i = informationService.deleteById(id);
-        if (i == 1) {
+        try {
+            informationService.deleteById(id);
             return Result.ok();
+        } catch (Exception e) {
+            return Result.error(e.getMessage());
         }
-        return Result.error();
     }
 
 }

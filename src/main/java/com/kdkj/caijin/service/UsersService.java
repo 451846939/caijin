@@ -8,6 +8,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.List;
 
 public interface UsersService {
     Page<Users> findAll(PageRequest pageRequest);
@@ -20,13 +21,19 @@ public interface UsersService {
 
     Users findById(String id);
 
-    Files uploadIdcar(String userid, MultipartFile file) throws IOException;
+    Files updateUploadIdcar(String userid, MultipartFile file) throws IOException;
 
-    Files uploadHeadurl(String userid, MultipartFile file) throws IOException;
+    Files updateUploadHeadurl(String userid, MultipartFile file) throws IOException;
 
     int updateUsersByVo(UsersVo usersVo) throws IllegalAccessException, InstantiationException;
 
     int updateByPhone(String phone, String userid);
 
     int updateByPwd(String password, String userid);
+
+    int updateByToken(String token, String userid);
+
+    List<Users> findAll();
+
+    Users findByStateAndPhone(Integer state, String phone);
 }

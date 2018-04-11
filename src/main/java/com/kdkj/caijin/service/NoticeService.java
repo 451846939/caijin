@@ -7,7 +7,7 @@ import org.springframework.data.domain.PageRequest;
 public interface NoticeService {
     Page<Notice> findAll(PageRequest pageRequest);
 
-    int insert(Notice notice);
+    Notice insert(Notice notice);
 
     int update(Notice notice) throws IllegalAccessException, InstantiationException;
 

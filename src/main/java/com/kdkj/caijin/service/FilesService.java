@@ -16,7 +16,8 @@ public interface FilesService {
 
     int delete(Files files);
 
-    Files upload(MultipartFile file) throws IOException;
+    Files updateUpload(MultipartFile file) throws IOException;
 
+    Files findById(String id);
     int deleteDirAndFilesByid(String id);
 }

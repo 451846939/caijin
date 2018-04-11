@@ -12,6 +12,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
+import java.util.Optional;
+
 @Service
 @Transactional
 public class NoticeServiceImpl implements NoticeService {
@@ -24,18 +26,22 @@ public class NoticeServiceImpl implements NoticeService {
     }
 
     @Override
-    public int insert(Notice notice) {
+    public Notice insert(Notice notice) {
         if (notice != null) {
-            noticeDao.save(notice);
-            return 1;
+            Notice save = noticeDao.save(notice);
+            return save;
         }
-        return 0;
+        return null;
     }
 
     @Override
     public int update(Notice notice) throws IllegalAccessException, InstantiationException {
         if (notice != null) {
-            Notice oldNotice = noticeDao.findById(notice.getId()).get();
+            Optional<Notice> byId = noticeDao.findById(notice.getId());
+            if (!byId.isPresent()) {
+                throw new ErrMsgException("没有该id的对象");
+            }
+            Notice oldNotice = byId.get();
             CopyObj.copyObjNotNullFieldsAsObj(notice, oldNotice);
             return 1;
         }
@@ -54,6 +60,10 @@ public class NoticeServiceImpl implements NoticeService {
     @Override
     public int deleteByid(String id) {
         if (!StringUtils.isEmpty(id)) {
+            Optional<Notice> byId = noticeDao.findById(id);
+            if (!byId.isPresent()) {
+                throw new ErrMsgException("该id不存在");
+            }
             noticeDao.deleteById(id);
             return 1;
         }

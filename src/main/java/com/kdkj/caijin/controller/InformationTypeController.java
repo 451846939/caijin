@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.*;
  * @create 2018-03-31 1:00
  **/
 @RestController
-@RequestMapping("/Information")
+@RequestMapping("/informationType")
 public class InformationTypeController {
     @Autowired
     private InformationTypeService informationTypeService;
@@ -41,8 +41,8 @@ public class InformationTypeController {
             try {
                 informationTypeService.update(informationType);
                 return Result.ok();
-            } catch (IllegalAccessException | InstantiationException e) {
-                e.printStackTrace();
+            } catch (Exception e) {
+                return Result.error(e.getMessage());
             }
         }
         return Result.error();
@@ -50,10 +50,11 @@ public class InformationTypeController {
 
     @DeleteMapping("/deleteInformateionType/{id}")
     public Result delete(@PathVariable("id") String id) {
-        if (!StringUtils.isEmpty(id)) {
+        try {
             informationTypeService.deleteById(id);
             return Result.ok();
+        } catch (Exception e) {
+            return Result.error(e.getMessage());
         }
-        return Result.error();
     }
 }

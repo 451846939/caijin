@@ -1,6 +1,8 @@
 package com.kdkj.caijin.dao;
 
 import com.kdkj.caijin.entity.Collection;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -13,4 +15,5 @@ import org.springframework.stereotype.Repository;
  **/
 @Repository
 public interface CollectionDao extends JpaRepository<Collection, String> {
+    Page<Collection> findByUserid(String userid, Pageable pageable);
 }

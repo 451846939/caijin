@@ -25,24 +25,25 @@ public class CollectionController {
     private CollectionService collectionService;
 
     @PostMapping("/add")
-    public Result addCollection(Collection collection) {
+    public Result addCollection(@RequestBody Collection collection) {
         try {
-            collectionService.insert(collection);
-            return Result.ok("成功", collection);
+            Collection insert = collectionService.insert(collection);
+            return Result.ok("成功", insert);
         } catch (Exception e) {
-            e.printStackTrace();
-            return Result.error();
+            return Result.error(e.getMessage());
         }
     }
 
     @ApiImplicitParams({
             @ApiImplicitParam(name = "pageNum", value = "页数", dataType = "int", paramType = "query", required = false),
             @ApiImplicitParam(name = "pageSize", value = "页长度", dataType = "int", paramType = "query", required = true),
+            @ApiImplicitParam(name = "userid", value = "用户id", dataType = "String", paramType = "query", required = true),
             @ApiImplicitParam(name = "orderBy", value = "按什么排序", dataType = "int", paramType = "query", required = false)
+
     })
-    @GetMapping("/findAll")
-    public Result findAll(Pageinfo pageinfo) {
-        Page<Collection> all = collectionService.findAll(PageUtis.getPageRequest(pageinfo, Sort.Direction.ASC));
+    @GetMapping("/findAllByUserid")
+    public Result findAll(Pageinfo pageinfo, String userid) {
+        Page<Collection> all = collectionService.findAllById(userid, PageUtis.getPageRequest(pageinfo, Sort.Direction.ASC));
         return Result.ok("成功", PageUtis.getInfoInPageinfo(all));
     }
 
@@ -52,8 +53,6 @@ public class CollectionController {
             collectionService.deleteByid(id);
             return Result.ok();
         } catch (Exception e) {
-            e.printStackTrace();
-
             return Result.error(e.getMessage());
         }
     }

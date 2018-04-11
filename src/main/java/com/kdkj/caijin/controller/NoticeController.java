@@ -37,8 +37,12 @@ public class NoticeController {
 
     @PostMapping("/add")
     public Result addNotice(@RequestBody Notice notice) {
-        noticeService.insert(notice);
-        return Result.ok("成功", notice);
+        try {
+            Notice insert = noticeService.insert(notice);
+            return Result.ok("成功", insert);
+        } catch (Exception e) {
+            return Result.error(e.getMessage());
+        }
     }
 
     @PostMapping("/update")
@@ -46,15 +50,19 @@ public class NoticeController {
         try {
             noticeService.update(notice);
             return Result.ok();
-        } catch (IllegalAccessException | InstantiationException e) {
-            e.printStackTrace();
-            return Result.error();
+        } catch (Exception e) {
+            return Result.error(e.getMessage());
         }
     }
 
     @DeleteMapping("/delete/{id}")
     public Result deleteNotice(@PathVariable("id") String id) {
-        noticeService.deleteByid(id);
-        return Result.ok();
+
+        try {
+            noticeService.deleteByid(id);
+            return Result.ok();
+        } catch (Exception e) {
+            return Result.error(e.getMessage());
+        }
     }
 }

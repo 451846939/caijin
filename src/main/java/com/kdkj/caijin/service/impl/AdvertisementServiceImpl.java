@@ -7,6 +7,7 @@ import com.kdkj.caijin.entity.Files;
 import com.kdkj.caijin.service.AdvertisementService;
 import com.kdkj.caijin.service.FilesService;
 import com.kdkj.caijin.util.CopyObj;
+import com.kdkj.caijin.util.ErrMsgException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Example;
 import org.springframework.data.domain.Page;
@@ -15,6 +16,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.querydsl.QPageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
@@ -75,10 +77,15 @@ public class AdvertisementServiceImpl implements AdvertisementService {
     @Override
     public int updateHaveFiles(Advertisement advertisement, MultipartFile file) throws IllegalAccessException, InstantiationException, IOException {
         if (advertisement != null) {
+            if (StringUtils.isEmpty(advertisement.getId())) {
+                throw new ErrMsgException("id不能为空");
+            }
             Advertisement oldadvertisement = advertisementDao.findById(advertisement.getId()).get();
             CopyObj.copyObjNotNullFieldsAsObj(advertisement, oldadvertisement);
-            Files upload = filesService.upload(file);
-            oldadvertisement.setFileid(upload.getId());
+            if (file != null) {
+                Files upload = filesService.updateUpload(file);
+                oldadvertisement.setFileid(upload.getId());
+            }
             return 1;
         }
         return 0;

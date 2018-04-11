@@ -1,6 +1,8 @@
 package com.kdkj.caijin.service.impl;
 
 import com.kdkj.caijin.dao.CommentDao;
+import com.kdkj.caijin.dao.InformationDao;
+import com.kdkj.caijin.dao.UsersDao;
 import com.kdkj.caijin.entity.Comment;
 import com.kdkj.caijin.enums.CommentExamine;
 import com.kdkj.caijin.enums.CommentInfo;
@@ -18,12 +20,17 @@ import org.springframework.util.StringUtils;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @Transactional
 public class CommentServiceImpl implements CommentService {
     @Autowired
     private CommentDao commentDao;
+    @Autowired
+    private UsersDao usersDao;
+    @Autowired
+    private InformationDao informationDao;
 
     @Override
     public Page<Comment> findAll(PageRequest pageRequest) {
@@ -31,16 +38,26 @@ public class CommentServiceImpl implements CommentService {
     }
 
     @Override
-    public int insert(Comment comment) {
+    public Comment insert(Comment comment) {
         if (comment != null) {
-            comment.setCreatetime(new Date());
-            if (comment.getExamine() == null) {
-                comment.setExamine(CommentExamine.EXAMINE.getCode());
+            if (StringUtils.isEmpty(comment.getUserid())) {
+                throw new ErrMsgException("用户id不能为空");
             }
-            commentDao.save(comment);
-            return 1;
+            if (StringUtils.isEmpty(comment.getInformationid())) {
+                throw new ErrMsgException("信息id不能为空");
+            }
+            if (usersDao.findById(comment.getUserid()).isPresent() && informationDao.findById(comment.getInformationid()).isPresent()) {
+                comment.setCreatetime(new Date());
+                if (comment.getExamine() == null) {
+                    comment.setExamine(CommentExamine.EXAMINE.getCode());
+                }
+                Comment save = commentDao.save(comment);
+                return save;
+            } else {
+                throw new ErrMsgException("请检查传入参数用户id或者信息id是否存在");
+            }
         }
-        return 0;
+        return null;
     }
 
     @Override
@@ -50,7 +67,11 @@ public class CommentServiceImpl implements CommentService {
             if (comment.getExamine() == null) {
                 comment.setExamine(CommentExamine.NOT_EXAMINE.getCode());
             }
-            Comment oldComment = commentDao.findById(comment.getId()).get();
+            Optional<Comment> byId = commentDao.findById(comment.getId());
+            if (!byId.isPresent()) {
+                throw new ErrMsgException("不存在该id");
+            }
+            Comment oldComment = byId.get();
             CopyObj.copyObjNotNullFieldsAsObj(comment, oldComment);
             return 1;
         }
@@ -68,7 +89,7 @@ public class CommentServiceImpl implements CommentService {
 
     @Override
     public Page<CommentVo> findByInformationidAndCommentid(String informationid, Pageable pageable) {
-        Page<CommentVo> commentsPage = commentDao.findByInformationidAndAndExamineAndCommentidIsNullOrCommentid(informationid, CommentExamine.NOT_EXAMINE.getCode(), CommentInfo.PARENT_NODE.getCode(), pageable);
+        Page<CommentVo> commentsPage = commentDao.findByInformationidAndExamineAndCommentidIsNullOrCommentid(informationid, CommentExamine.NOT_EXAMINE.getCode(), CommentInfo.PARENT_NODE.getCode(), pageable);
         List<CommentVo> content = commentsPage.getContent();
         //首先循环查出来的comment然后把id进行查询看是否有子节点
         setCommentVo(content);

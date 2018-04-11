@@ -9,6 +9,7 @@ import com.kdkj.caijin.service.UsersService;
 import com.kdkj.caijin.util.CopyObj;
 import com.kdkj.caijin.util.ErrMsgException;
 import com.kdkj.caijin.vo.UsersVo;
+import org.apache.shiro.crypto.hash.SimpleHash;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -18,6 +19,7 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 
@@ -49,6 +51,10 @@ public class UsersServiceImpl implements UsersService {
     @Override
     public int update(Users users) throws IllegalAccessException, InstantiationException {
         if (users != null) {
+            if (!StringUtils.isEmpty(users.getPassword())) {
+                String simpleHash = new SimpleHash("SHA-1", users.getPassword()).toString();
+                users.setPassword(simpleHash);
+            }
             Users oldUsers = usersDao.findById(users.getId()).get();
             CopyObj.copyObjNotNullFieldsAsObj(users, oldUsers);
             return 1;
@@ -76,16 +82,16 @@ public class UsersServiceImpl implements UsersService {
     }
 
     @Override
-    public Files uploadIdcar(String userid, MultipartFile file) throws IOException {
-        Files upload = filesService.upload(file);
+    public Files updateUploadIdcar(String userid, MultipartFile file) throws IOException {
+        Files upload = filesService.updateUpload(file);
         Users byId = this.findById(userid);
         byId.setIdcarurl(upload.getId());
         return upload;
     }
 
     @Override
-    public Files uploadHeadurl(String userid, MultipartFile file) throws IOException {
-        Files upload = filesService.upload(file);
+    public Files updateUploadHeadurl(String userid, MultipartFile file) throws IOException {
+        Files upload = filesService.updateUpload(file);
         Users byId = this.findById(userid);
         byId.setHeadurl(upload.getId());
         return upload;
@@ -97,7 +103,18 @@ public class UsersServiceImpl implements UsersService {
     @Override
     public int updateUsersByVo(UsersVo usersVo) throws IllegalAccessException, InstantiationException {
         if (usersVo != null) {
-            Users users = usersDao.findById(usersVo.getId()).get();
+            if (StringUtils.isEmpty(usersVo.getId())) {
+                throw new ErrMsgException("id不能为空");
+            }
+            if (!StringUtils.isEmpty(usersVo.getPassword())) {
+                String simpleHash = new SimpleHash("SHA-1", usersVo.getPassword()).toString();
+                usersVo.setPassword(simpleHash);
+            }
+            Optional<Users> byId = usersDao.findById(usersVo.getId());
+            if (!byId.isPresent()) {
+                throw new ErrMsgException("id不存在");
+            }
+            Users users = byId.get();
             CopyObj.copyObjNotNullFieldsAsObj(usersVo, users);
             return 1;
         }
@@ -110,7 +127,11 @@ public class UsersServiceImpl implements UsersService {
     @Override
     public int updateByPhone(String phone, String userid) {
         if (!StringUtils.isEmpty(phone)) {
-            Users users = usersDao.findById(userid).get();
+            Optional<Users> byId = usersDao.findById(userid);
+            if (!byId.isPresent()) {
+                throw new ErrMsgException("id不存在");
+            }
+            Users users = byId.get();
             users.setPhone(phone);
             return 1;
         }
@@ -123,11 +144,41 @@ public class UsersServiceImpl implements UsersService {
     @Override
     public int updateByPwd(String password, String userid) {
         if (!StringUtils.isEmpty(password)) {
-            Users users = usersDao.findById(userid).get();
+            Optional<Users> byId = usersDao.findById(userid);
+            if (!byId.isPresent()) {
+                throw new ErrMsgException("id不存在");
+            }
+            Users users = byId.get();
+            String simpleHash = new SimpleHash("SHA-1", password).toString();
             users.setPassword(password);
             return 1;
         }
         return 0;
     }
+
+    @Override
+    public int updateByToken(String token, String userid) {
+        if (!StringUtils.isEmpty(userid)) {
+            Optional<Users> byId = usersDao.findById(userid);
+            if (!byId.isPresent()) {
+                throw new ErrMsgException("id不存在");
+            }
+            Users users = byId.get();
+            users.setToken(token);
+            return 1;
+        }
+        return 0;
+    }
+
+    @Override
+    public List<Users> findAll() {
+        return usersDao.findAll();
+    }
+
+    @Override
+    public Users findByStateAndPhone(Integer state, String phone) {
+        return usersDao.findByStateAndPhone(state, phone);
+    }
+
 
 }

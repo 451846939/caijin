@@ -12,8 +12,10 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @Transactional
@@ -44,7 +46,11 @@ public class InformationTypeServiceImpl implements InformationTypeService {
     @Override
     public int update(InformationType informationType) throws IllegalAccessException, InstantiationException {
         if (informationType != null) {
-            InformationType oldInformationType = informationTypeDao.findById(informationType.getId()).get();
+            Optional<InformationType> byId = informationTypeDao.findById(informationType.getId());
+            if (!byId.isPresent()) {
+                throw new ErrMsgException("没有该id");
+            }
+            InformationType oldInformationType = byId.get();
             CopyObj.copyObjNotNullFieldsAsObj(informationType, oldInformationType);
             return 1;
         }
@@ -54,11 +60,15 @@ public class InformationTypeServiceImpl implements InformationTypeService {
 
     @Override
     public int deleteById(String id) {
-        if (id != null) {
+        if (!StringUtils.isEmpty(id)) {
+            Optional<InformationType> byId = informationTypeDao.findById(id);
+            if (!byId.isPresent()) {
+                throw new ErrMsgException("没有该id");
+            }
             informationTypeDao.deleteById(id);
             return 1;
         }
-        return 0;
+        throw new ErrMsgException("id不能为空");
     }
 
     @Override

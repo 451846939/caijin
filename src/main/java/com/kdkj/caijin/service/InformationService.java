@@ -21,4 +21,8 @@ public interface InformationService {
     int deleteById(String id);
 
     int delete(Information information);
+
+    List<Information> findBySourceNotNull();
+
+    int insertAll(List<Information> list);
 }

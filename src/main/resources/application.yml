@@ -84,6 +84,14 @@ spring:
     static-locations: classpath:/resources/,classpath:/static/,file:${web.multipart-path}
 web:
   multipart-path: ./src/main/resources/static/files/
+
+thread:
+  #核心数
+  core-pool-size: 10
+  #最大线程池数
+  max-pool-size: 50
+  #队列容量
+  queue-capacity: 10
   #日志
 logging:
   config: classpath:logback-spring.xml
