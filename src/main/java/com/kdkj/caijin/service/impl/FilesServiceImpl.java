@@ -4,6 +4,7 @@ import com.kdkj.caijin.dao.FilesDao;
 import com.kdkj.caijin.entity.Files;
 import com.kdkj.caijin.service.FilesService;
 import com.kdkj.caijin.util.CopyObj;
+import com.kdkj.caijin.util.ErrMsgException;
 import org.apache.tomcat.util.http.fileupload.FileUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -12,12 +13,14 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.FileCopyUtils;
+import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Optional;
 
 @Service
 @Transactional
@@ -80,12 +83,27 @@ public class FilesServiceImpl implements FilesService {
 
     @Override
     public Files findById(String id) {
-        return filesDao.findById(id).get();
+        if (StringUtils.isEmpty(id)) {
+            throw new ErrMsgException("文件id不能为空");
+        }
+        Optional<Files> byId = filesDao.findById(id);
+        if (!byId.isPresent()) {
+            throw new ErrMsgException("没有该文件");
+        }
+
+        return byId.get();
     }
 
     @Override
     public int deleteDirAndFilesByid(String id) {
-        Files files = filesDao.findById(id).get();
+        if (StringUtils.isEmpty(id)) {
+            throw new ErrMsgException("文件id不能为空");
+        }
+        Optional<Files> byId = filesDao.findById(id);
+        if (!byId.isPresent()) {
+            throw new ErrMsgException("没有该文件");
+        }
+        Files files = byId.get();
         File file = new File(files.getPath() + files.getNewname());
         filesDao.deleteById(files.getId());
         file.delete();

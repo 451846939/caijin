@@ -7,6 +7,7 @@ import com.kdkj.caijin.service.PlatformService;
 import com.kdkj.caijin.service.UsersService;
 import com.kdkj.caijin.service.impl.CommentServiceImpl;
 import com.kdkj.caijin.service.impl.ContributionsServiceImpl;
+import com.kdkj.caijin.util.ErrMsgException;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.shiro.SecurityUtils;
 import org.aspectj.lang.JoinPoint;
@@ -35,7 +36,7 @@ public class IntegralAspect {
 
     @Pointcut("execution(* com.kdkj.caijin.service..CommentService.insert*(..))||" +
             "execution(* com.kdkj.caijin.service..ContributionsService.insert*(..))||" +
-            "execution(* com.kdkj.caijin.controller..LoginController.login*(..))")
+            "execution(* com.kdkj.caijin.controller..LoginController.login(..))")
     public void intergralPointcut() {
 
     }
@@ -51,6 +52,9 @@ public class IntegralAspect {
         }
         Platform platform = all.get(0);
         Users users = (Users) SecurityUtils.getSubject().getPrincipal();
+        if (users == null) {
+            return;
+        }
         Integer integral = users.getIntegral();
         if (aClass == CommentServiceImpl.class) {
             //评论

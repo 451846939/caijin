@@ -38,7 +38,7 @@ public class BTBCrawlerTask {
     public void btb2Task() {
         Map forObject = restTemplate.getForObject("https://blockchain.info/ticker", Map.class);
 //        restTemplate.optionsForAllow()
-        log.info(forObject.toString());
+//        log.info(forObject.toString());
         Set set = forObject.keySet();
         List<BTBInfo> btbInfos = new ArrayList<>();
         set.forEach(key -> {

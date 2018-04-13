@@ -16,6 +16,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
@@ -74,11 +75,10 @@ public class UsersServiceImpl implements UsersService {
     @Override
     public Users findById(String id) {
         Optional<Users> byId = usersDao.findById(id);
-        try {
-            return byId.get();
-        } catch (NoSuchElementException e) {
+        if (!byId.isPresent()) {
             throw new ErrMsgException("该用户不存在");
         }
+        return byId.get();
     }
 
     @Override
@@ -91,6 +91,9 @@ public class UsersServiceImpl implements UsersService {
 
     @Override
     public Files updateUploadHeadurl(String userid, MultipartFile file) throws IOException {
+        if (StringUtils.isEmpty(userid)) {
+            throw new ErrMsgException("用户id不能为空");
+        }
         Files upload = filesService.updateUpload(file);
         Users byId = this.findById(userid);
         byId.setHeadurl(upload.getId());
@@ -118,7 +121,7 @@ public class UsersServiceImpl implements UsersService {
             CopyObj.copyObjNotNullFieldsAsObj(usersVo, users);
             return 1;
         }
-        return 0;
+        throw new ErrMsgException("用户信息不能为空");
     }
 
     /**
@@ -131,11 +134,15 @@ public class UsersServiceImpl implements UsersService {
             if (!byId.isPresent()) {
                 throw new ErrMsgException("id不存在");
             }
+            Users byStateAndPhone = usersDao.findByStateAndPhone(UsersInfo.STATE.getCode(), phone);
+            if (byStateAndPhone != null) {
+                throw new ErrMsgException("该用户已经存在");
+            }
             Users users = byId.get();
             users.setPhone(phone);
             return 1;
         }
-        return 0;
+        throw new ErrMsgException("电话号码不能为空");
     }
 
     /**
@@ -153,7 +160,7 @@ public class UsersServiceImpl implements UsersService {
             users.setPassword(password);
             return 1;
         }
-        return 0;
+        throw new ErrMsgException("密码不能为空");
     }
 
     @Override
@@ -167,7 +174,7 @@ public class UsersServiceImpl implements UsersService {
             users.setToken(token);
             return 1;
         }
-        return 0;
+        throw new ErrMsgException("用户id不能为空");
     }
 
     @Override

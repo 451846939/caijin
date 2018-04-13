@@ -12,7 +12,7 @@ swagger:
 spring:
   jpa:
     database: mysql
-    show-sql: true
+    show-sql: false
     generate-ddl: true
     hibernate:
       ddl-auto: update
@@ -83,8 +83,8 @@ spring:
   resources:
     static-locations: classpath:/resources/,classpath:/static/,file:${web.multipart-path}
 web:
-  multipart-path: ./src/main/resources/static/files/
-
+  multipart-path: ../files/
+#./src/main/resources/static/files/
 thread:
   #ºËÐÄÊý
   core-pool-size: 10

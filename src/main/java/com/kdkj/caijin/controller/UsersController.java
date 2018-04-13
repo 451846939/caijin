@@ -4,12 +4,17 @@ import com.kdkj.caijin.entity.Files;
 import com.kdkj.caijin.entity.Pageinfo;
 import com.kdkj.caijin.entity.Users;
 import com.kdkj.caijin.enums.UsersInfo;
+import com.kdkj.caijin.service.FilesService;
 import com.kdkj.caijin.service.UsersService;
 import com.kdkj.caijin.util.PageUtis;
 import com.kdkj.caijin.util.Result;
 import com.kdkj.caijin.vo.LoginVo;
 import com.kdkj.caijin.vo.UpdatePhoneVo;
 import com.kdkj.caijin.vo.UsersVo;
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiImplicitParams;
+import org.apache.shiro.authz.annotation.RequiresAuthentication;
+import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Sort;
@@ -31,8 +36,12 @@ import java.util.Date;
 public class UsersController {
     @Autowired
     private UsersService usersService;
+    @Autowired
+    private FilesService filesService;
 
+    //    @RequiresAuthentication
     @GetMapping("/findAll")
+//    @RequiresPermissions("")
     public Result findAll(Pageinfo pageinfo) {
         Page<Users> all = usersService.findAll(PageUtis.getPageRequest(pageinfo, Sort.Direction.ASC));
         return Result.ok("成功", PageUtis.getInfoInPageinfo(all));
@@ -119,6 +128,26 @@ public class UsersController {
         }
     }
 
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "id", value = "用户id", dataType = "String", paramType = "query", required = true),
+    })
+    @GetMapping("/findById")
+    public Result findById(String id, HttpServletRequest request) {
+        try {
+            Users byId = usersService.findById(id);
+            Files headurl = null;
+            Files idcarurl = null;
+            if (!StringUtils.isEmpty(byId.getHeadurl())) {
+                headurl = filesService.findById(byId.getHeadurl());
+            }
+            if (!StringUtils.isEmpty(byId.getIdcarurl())) {
+                idcarurl = filesService.findById(byId.getIdcarurl());
+            }
+            return Result.ok("成功", byId).put("headUrl", "/" + headurl.getNewname()).put("idcarurl", "/" + idcarurl.getNewname());
+        } catch (Exception e) {
+            return Result.error(e.getMessage());
+        }
+    }
     @PostMapping("/updatePwd")
     public Result updatePwd(@RequestBody UsersVo usersVo) {
         try {
