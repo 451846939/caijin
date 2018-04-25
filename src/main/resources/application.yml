@@ -51,26 +51,30 @@ spring:
     connectionProperties: druid.stat.mergeSql=true;druid.stat.slowSqlMillis=5000
     # 合并多个DruidDataSource的监控数据
     #useGlobalDataSourceStat: true
-#  cache:
-#    type: redis
-#    ehcache:
-#      config: classpath:ehcache.xml
-#  redis:
-#    host: 127.0.0.1
-#    port: 6379
-#    #password:
-#    password: root
-#    timeout: 50
-#    jedis:
-#      pool:
-#       # 连接池最大连接数（使用负值表示没有限制）
-#        max-active: 8
-#        # 连接池中的最大空闲连接
-#        max-idle: 8
-#        # 连接池最大阻塞等待时间（使用负值表示没有限制）
-#        max-wait: 3600
-#        # 连接池中的最小空闲连接
-#        min-idle: 0
+  cache:
+    type: redis
+    ehcache:
+      config: classpath:ehcache.xml
+  session:
+    store-type: redis
+    redis:
+      namespace: spirng:session
+  redis:
+    host: 127.0.0.1
+    port: 6380
+    #password:
+    password: root
+    timeout: 50
+    jedis:
+      pool:
+       # 连接池最大连接数（使用负值表示没有限制）
+        max-active: 8
+        # 连接池中的最大空闲连接
+        max-idle: 8
+        # 连接池最大阻塞等待时间（使用负值表示没有限制）
+        max-wait: 3600
+        # 连接池中的最小空闲连接
+        min-idle: 0
   jackson:
     # 全局jackson配置
     default-property-inclusion: non_null
@@ -95,7 +99,9 @@ thread:
   #日志
 logging:
   config: classpath:logback-spring.xml
+
 server:
   port: 8088
   servlet:
     context-path: /
+  max-http-header-size: 10000000
