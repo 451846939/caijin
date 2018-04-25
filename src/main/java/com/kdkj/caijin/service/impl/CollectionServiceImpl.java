@@ -88,4 +88,15 @@ public class CollectionServiceImpl implements CollectionService {
     public Page<Collection> findAllById(String userid, PageRequest pageRequest) {
         return collectionDao.findByUserid(userid, pageRequest);
     }
+
+    @Override
+    public Collection findByUserIdAndinformationId(String userid, String informationid) {
+        if (StringUtils.isEmpty(userid)){
+            throw new ErrMsgException("userid不能为空");
+        }
+        if (StringUtils.isEmpty(informationid)){
+            throw new ErrMsgException("informationid");
+        }
+        return collectionDao.findByUseridAndInformationid(userid,informationid);
+    }
 }

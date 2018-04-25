@@ -1,6 +1,8 @@
 package com.kdkj.caijin.dao;
 
 import com.kdkj.caijin.entity.Contributions;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -16,4 +18,5 @@ import java.util.List;
 @Repository
 public interface ContributionsDao extends JpaRepository<Contributions, String> {
     List<Contributions> findByAdopt(Integer adopt);
+    Page<Contributions> findByUserid(String userid, Pageable pageable);
 }

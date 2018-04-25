@@ -16,4 +16,5 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface CollectionDao extends JpaRepository<Collection, String> {
     Page<Collection> findByUserid(String userid, Pageable pageable);
+    Collection findByUseridAndInformationid(String userid ,String informationid);
 }

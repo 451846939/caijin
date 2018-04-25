@@ -23,5 +23,9 @@ public interface InformationDao extends JpaRepository<Information, String> {
 
     Page<Information> findByRecommend(Integer recommend, Pageable pageable);
 
+    Page<Information> findByType(String type,Pageable pageable);
+
     List<Information> findBySourceNotNull();
+
+    Page<Information> findAllByKeywordContaining(String keyword,Pageable pageable);
 }

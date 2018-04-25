@@ -1,7 +1,9 @@
 package com.kdkj.caijin.entity;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
 import org.hibernate.annotations.GenericGenerator;
+import org.springframework.format.annotation.DateTimeFormat;
 
 import javax.persistence.*;
 import java.io.Serializable;
@@ -42,11 +44,15 @@ public class Comment implements Serializable {
      * 创建时间
      */
     @Temporal(TemporalType.TIMESTAMP)
+    @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss")
+    @JsonFormat(timezone = "GMT+8", pattern = "yyyy-MM-dd HH:mm:ss")
     private Date createtime;
     /**
      * 修改时间
      */
     @Temporal(TemporalType.TIMESTAMP)
+    @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss")
+    @JsonFormat(timezone = "GMT+8", pattern = "yyyy-MM-dd HH:mm:ss")
     private Date updatetime;
     /**
      * 点赞数

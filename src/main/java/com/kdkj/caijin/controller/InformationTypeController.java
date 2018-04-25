@@ -26,13 +26,17 @@ public class InformationTypeController {
 
     @PostMapping("/addInformationType")
     public Result addInformationType(@RequestBody String name) {
-        if (name != null) {
-            InformationType informationType = new InformationType();
-            informationType.setType(name);
-            informationTypeService.insert(informationType);
-            return Result.ok("成功", informationType);
+        try {
+            if (!StringUtils.isEmpty(name)) {
+                InformationType informationType = new InformationType();
+                informationType.setType(name);
+                informationTypeService.insert(informationType);
+                return Result.ok("成功", informationType);
+            }
+            return Result.error(500,"类型名字不能为空");
+        } catch (Exception e) {
+            return Result.error(e.getMessage());
         }
-        return Result.error(500, "添加失败");
     }
 
     @PostMapping("/updateInformationType")

@@ -1,7 +1,9 @@
 package com.kdkj.caijin.entity;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
 import org.hibernate.annotations.GenericGenerator;
+import org.springframework.format.annotation.DateTimeFormat;
 
 import javax.persistence.*;
 import java.io.Serializable;
@@ -38,9 +40,13 @@ public class Advertisement implements Serializable {
     private Integer state;
     @Temporal(TemporalType.TIMESTAMP)
     /**开始时间*/
+    @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss")
+    @JsonFormat(timezone = "GMT+8", pattern = "yyyy-MM-dd HH:mm:ss")
     private Date starttime;
     @Temporal(TemporalType.TIMESTAMP)
     /**结束时间*/
+    @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss")
+    @JsonFormat(timezone = "GMT+8", pattern = "yyyy-MM-dd HH:mm:ss")
     private Date endtime;
     @Column(length = 255)
     /**说明*/

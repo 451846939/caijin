@@ -2,17 +2,23 @@ package com.kdkj.caijin.controller;
 
 import com.kdkj.caijin.entity.Files;
 import com.kdkj.caijin.entity.Pageinfo;
+import com.kdkj.caijin.entity.Role;
 import com.kdkj.caijin.entity.Users;
 import com.kdkj.caijin.enums.UsersInfo;
 import com.kdkj.caijin.service.FilesService;
+import com.kdkj.caijin.service.RoleService;
 import com.kdkj.caijin.service.UsersService;
+import com.kdkj.caijin.util.CopyObj;
+import com.kdkj.caijin.util.ErrMsgException;
 import com.kdkj.caijin.util.PageUtis;
 import com.kdkj.caijin.util.Result;
 import com.kdkj.caijin.vo.LoginVo;
+import com.kdkj.caijin.vo.PageVo;
 import com.kdkj.caijin.vo.UpdatePhoneVo;
 import com.kdkj.caijin.vo.UsersVo;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.shiro.authz.annotation.RequiresAuthentication;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,7 +29,10 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
+import java.util.List;
 
 /**
  * 用户
@@ -33,20 +42,57 @@ import java.util.Date;
  **/
 @RestController
 @RequestMapping("/users")
+@Slf4j
 public class UsersController {
     @Autowired
     private UsersService usersService;
     @Autowired
     private FilesService filesService;
-
+    @Autowired
+    private RoleService roleService;
     //    @RequiresAuthentication
     @GetMapping("/findAll")
 //    @RequiresPermissions("")
     public Result findAll(Pageinfo pageinfo) {
         Page<Users> all = usersService.findAll(PageUtis.getPageRequest(pageinfo, Sort.Direction.ASC));
+        getUsersResult(all);
         return Result.ok("成功", PageUtis.getInfoInPageinfo(all));
     }
 
+    private void getUsersResult(Page<Users> all) {
+        if (all.getContent()!=null){
+            List<Users> content = all.getContent();
+            content.forEach(e->{
+                if (!StringUtils.isEmpty(e.getRole())){
+                    Role byId = roleService.findById(e.getRole());
+                    e.setRoleInfo(byId);
+                }
+                if (!StringUtils.isEmpty(e.getHeadurl())){
+                    Files byId = null;
+                    try {
+                        byId = filesService.findById(e.getHeadurl());
+                        e.setHeadFilesInfo(byId);
+                    } catch (ErrMsgException e1) {
+                        log.error(e1.getMsg());
+                    }
+                }
+            });
+        }
+    }
+
+    @GetMapping("/findByPhoneOrNickname")
+    public Result findAllByPhoneOrNickname(String find,Pageinfo pageinfo){
+        try {
+            if (StringUtils.isEmpty(find)){
+                return Result.error("查询不能为空");
+            }
+            Page<Users> allByPhoneOrNickname = usersService.findAllByPhoneOrNickname(find, find, PageUtis.getPageRequest(pageinfo, Sort.Direction.DESC));
+            getUsersResult(allByPhoneOrNickname);
+            return Result.ok("成功",PageUtis.getInfoInPageinfo(allByPhoneOrNickname));
+        } catch (Exception e) {
+            return Result.error(e.getMessage());
+        }
+    }
     /**
      * 注册
      */
@@ -113,6 +159,55 @@ public class UsersController {
             return Result.error(e.getMessage());
         }
     }
+    /**封号*/
+    @PostMapping("/updateByProhibit")
+    public Result updateByProhibit(String[] usersid){
+        try {
+            List<String> ids = Arrays.asList(usersid);
+            ids.forEach(e->{
+                usersService.updateByProhibit(e,UsersInfo.PROHIBIT.getCode());
+            });
+            return Result.ok();
+        } catch (Exception e) {
+            return Result.error(e.getMessage());
+        }
+    }
+    /**修改认证*/
+    @PostMapping("/updateByAuthentication")
+    public Result updateByAuthentication(String usersid){
+        try {
+            Users users = usersService.updateByAuthentication(usersid);
+            return Result.ok("成功",users);
+        } catch (Exception e) {
+            return Result.error(e.getMessage());
+        }
+    }
+    /**解封*/
+    @PostMapping("/updateByNotProhibit")
+    public Result updateByNotProhibit(String[] usersid){
+        try {
+            List<String> ids = Arrays.asList(usersid);
+            ids.forEach(e->{
+                usersService.updateByProhibit(e,UsersInfo.NOT_PROHIBIT.getCode());
+            });
+            return Result.ok();
+        } catch (Exception e) {
+            return Result.error(e.getMessage());
+        }
+    }
+    /**修改角色*/
+    @PostMapping("/updateUsersRole")
+    public Result updateUsersRole(String[] usersid,String roleid){
+        try {
+            List<String> ids = Arrays.asList(usersid);
+            ids.forEach(id->{
+                usersService.updateByUsersRole(id,roleid);
+            });
+            return Result.ok("成功");
+        } catch (Exception e) {
+            return Result.error(e.getMessage());
+        }
+    }
 
     @PostMapping("/updatePhone")
     public Result updatePhone(@RequestBody UpdatePhoneVo updatePhoneVo, HttpServletRequest request) {
@@ -143,7 +238,29 @@ public class UsersController {
             if (!StringUtils.isEmpty(byId.getIdcarurl())) {
                 idcarurl = filesService.findById(byId.getIdcarurl());
             }
-            return Result.ok("成功", byId).put("headUrl", "/" + headurl.getNewname()).put("idcarurl", "/" + idcarurl.getNewname());
+
+            Result result = Result.ok("成功", byId);
+            if (headurl!=null&&!StringUtils.isEmpty(headurl.getNewname())){
+                result.put("headUrl", "/" + headurl.getNewname());
+            }
+            if (idcarurl!=null&&!StringUtils.isEmpty(idcarurl.getNewname())){
+                result.put("idcarurl", "/" + idcarurl.getNewname());
+            }
+            return result;
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return Result.error(e.getMessage());
+        }
+    }
+    @PostMapping("/updateByState")
+    public Result updateByState(String[] userids){
+        try {
+            List<String> ids = Arrays.asList(userids);
+            ids.forEach(e->{
+                usersService.updateByState(e,UsersInfo.NOT_STATE.getCode());
+            });
+            return Result.ok();
         } catch (Exception e) {
             return Result.error(e.getMessage());
         }

@@ -16,4 +16,6 @@ public interface CollectionService {
     int deleteByid(String id);
 
     Page<Collection> findAllById(String userid, PageRequest pageRequest);
+
+    Collection findByUserIdAndinformationId(String userid,String informationid);
 }

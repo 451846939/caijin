@@ -20,8 +20,12 @@ public class RoleController {
 
     @PostMapping("/add")
     public Result addRole(@RequestBody Role role) {
-        Role insert = roleService.insert(role);
-        return Result.ok("成功", insert);
+        try {
+            Role insert = roleService.insert(role);
+            return Result.ok("成功", insert);
+        } catch (Exception e) {
+            return Result.error(e.getMessage());
+        }
     }
 
     @PostMapping("/update")

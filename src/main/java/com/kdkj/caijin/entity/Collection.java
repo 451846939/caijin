@@ -1,7 +1,9 @@
 package com.kdkj.caijin.entity;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
 import org.hibernate.annotations.GenericGenerator;
+import org.springframework.format.annotation.DateTimeFormat;
 
 import javax.persistence.*;
 import java.io.Serializable;
@@ -32,5 +34,7 @@ public class Collection implements Serializable {
     private String informationid;
     @Temporal(TemporalType.TIMESTAMP)
     /**创建时间*/
+    @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss")
+    @JsonFormat(timezone = "GMT+8", pattern = "yyyy-MM-dd HH:mm:ss")
     private Date time;
 }

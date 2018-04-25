@@ -1,7 +1,9 @@
 package com.kdkj.caijin.entity;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
 import org.hibernate.annotations.GenericGenerator;
+import org.springframework.format.annotation.DateTimeFormat;
 
 import javax.persistence.*;
 import java.io.Serializable;
@@ -42,6 +44,8 @@ public class Information implements Serializable {
     /**
      * 创建时间
      */
+    @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss")
+    @JsonFormat(timezone = "GMT+8", pattern = "yyyy-MM-dd HH:mm:ss")
     @Temporal(TemporalType.TIMESTAMP)
     private Date time;
     /**
@@ -82,4 +86,7 @@ public class Information implements Serializable {
      * 是否推荐
      */
     private Integer recommend;
+    /**展示的图片id*/
+    @Column(length = 64)
+    private String showpicture;
 }

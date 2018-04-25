@@ -1,8 +1,16 @@
 package com.kdkj.caijin.controller;
 
+import com.alibaba.fastjson.JSON;
+import com.kdkj.caijin.entity.ThirdpartyUsers;
 import com.kdkj.caijin.entity.Users;
+import com.kdkj.caijin.enums.OpenType;
 import com.kdkj.caijin.enums.UsersInfo;
 import com.kdkj.caijin.service.UsersService;
+import com.kdkj.caijin.service.impl.ThirdpartyUsersServiceImpl;
+import com.kdkj.caijin.thirdpartylogin.WxOauth2;
+import com.kdkj.caijin.thirdpartylogin.WxUserInfo;
+import com.kdkj.caijin.thirdpartylogin.Wxthirdpartylogin;
+import com.kdkj.caijin.util.CopyObj;
 import com.kdkj.caijin.util.Result;
 import com.kdkj.caijin.util.ShiroEncryptionUtils;
 import com.kdkj.caijin.vo.LoginVo;
@@ -20,9 +28,12 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.client.RestTemplate;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.Date;
+import java.util.Map;
+import java.util.ResourceBundle;
 
 /**
  * 登录注册
@@ -35,6 +46,32 @@ import java.util.Date;
 public class LoginController {
     @Autowired
     private UsersService usersService;
+    @Autowired
+    private Wxthirdpartylogin wxthirdpartylogin;
+    @Autowired
+    private ThirdpartyUsersServiceImpl thirdpartyUsersService;
+    @GetMapping("/wxlogin")
+    public Result wxlogin(String code) {
+        WxOauth2 wxOauth2 = wxthirdpartylogin.getWxAccessToken(code);
+        String wxOpenId = wxOauth2.getOpenid();
+        try {
+            WxUserInfo userInfo = wxthirdpartylogin.getUserInfo(wxOauth2);
+            //获取到用户信息后
+            ThirdpartyUsers thirdpartyUsers = new ThirdpartyUsers();
+            CopyObj.copyObjNotNullFieldsAsObj(userInfo, thirdpartyUsers);
+            thirdpartyUsers.setOpenType(OpenType.WX_USER.getCode());
+            ThirdpartyUsers insert = thirdpartyUsersService.insert(thirdpartyUsers);
+            //todo 如果没有填写手机号那么就无法登录，待做
+            Users byId = usersService.findById(insert.getUserid());
+            usersService.updateByUpdatetime(new Date(),byId.getId());
+            SecurityUtils.getSubject().login(new UsernamePasswordToken(byId.getId(),"1"));
+
+        } catch (Exception e) {
+            return Result.error(e.getMessage());
+        }
+        log.info(wxOpenId);
+        return Result.ok().put("openId", wxOpenId);
+    }
 
     @PostMapping("/login")
     public Result login(@RequestBody LoginVo loginVo, HttpServletRequest request) {
@@ -52,6 +89,7 @@ public class LoginController {
                 return Result.error("没有此账号");
             }
             usersService.updateByToken(token, users.getId());
+            usersService.updateByUpdatetime(new Date(), users.getId());
             SecurityUtils.getSubject().login(new UsernamePasswordToken(loginVo.getPhone(), token, "1"));
             request.getSession().removeAttribute("yzm");
             log.info(request.getSession().getId());

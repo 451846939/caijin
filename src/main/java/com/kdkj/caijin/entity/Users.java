@@ -1,7 +1,11 @@
 package com.kdkj.caijin.entity;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import org.hibernate.annotations.GenericGenerator;
+import org.springframework.format.annotation.DateTimeFormat;
 
 import javax.persistence.*;
 import java.io.Serializable;
@@ -14,6 +18,7 @@ import java.util.Date;
  * @create 19:28 2018/3/29
  * @params * @param null
  **/
+@ApiModel("用户")
 @Data
 @Entity
 @Table(name = "users")
@@ -23,16 +28,19 @@ public class Users implements Serializable {
     @GenericGenerator(name = "idGenerator", strategy = "uuid") //这个是hibernate的注解
     @GeneratedValue(generator = "idGenerator") //使用uuid的生成策略
     @Column(length = 64)
+    @ApiModelProperty(value = "ID", dataType = "string", required = false)
     private String id;
     /**
      * 用户账号
      */
     @Column(length = 64)
+    @ApiModelProperty(value = "账号", dataType = "string", required = false)
     private String username;
     /**
      * 用户密码
      */
     @Column(length = 64)
+    @ApiModelProperty(value = "密码", dataType = "string", required = false)
     private String password;
     /**
      * 用户电话
@@ -91,15 +99,24 @@ public class Users implements Serializable {
     /**
      * 创建时间
      */
+    @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss")
+    @JsonFormat(timezone = "GMT+8", pattern = "yyyy-MM-dd HH:mm:ss")
     @Temporal(TemporalType.TIMESTAMP)
     private Date createtime;
     /**
      * 最近登录时间
      */
+    @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss")
+    @JsonFormat(timezone = "GMT+8", pattern = "yyyy-MM-dd HH:mm:ss")
     @Temporal(TemporalType.TIMESTAMP)
     private Date updatetime;
     /**
      * 投稿数
      */
     private Integer contributions;
+
+    @Transient
+    private Role roleInfo;
+    @Transient
+    private Files headFilesInfo;
 }

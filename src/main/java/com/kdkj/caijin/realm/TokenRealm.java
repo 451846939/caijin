@@ -64,10 +64,18 @@ public class TokenRealm extends AuthorizingRealm {
         String phone = (String) token.getPrincipal();
         Users byStateAndPhone = usersService.findByStateAndPhone(UsersInfo.STATE.getCode(), phone);
         String usersToken = byStateAndPhone.getToken();
+        SimpleAuthenticationInfo info = null;
         if (byStateAndPhone == null) {
-            throw new ErrMsgException("没有该用户");
+            //是否为第三方登录的
+            Users byId = usersService.findById(phone);
+            if (byId == null) {
+                throw new ErrMsgException("没有该用户");
+            }
+            //第三方登录因为可能会没有手机号，所以第三方就直接放行
+            info = new SimpleAuthenticationInfo(byId, "1", getName());
+            return info;
         }
-        SimpleAuthenticationInfo info = new SimpleAuthenticationInfo(byStateAndPhone, usersToken, getName());
+        info = new SimpleAuthenticationInfo(byStateAndPhone, usersToken, getName());
         return info;
     }
 

@@ -9,9 +9,11 @@ import com.kdkj.caijin.enums.ContributionsAdopt;
 import com.kdkj.caijin.service.ContributionsService;
 import com.kdkj.caijin.util.CopyObj;
 import com.kdkj.caijin.util.ErrMsgException;
+import com.kdkj.caijin.vo.ContributionsVo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.FileCopyUtils;
@@ -21,6 +23,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -136,5 +139,30 @@ public class ContributionsServiceImpl implements ContributionsService {
     @Override
     public Contributions findById(String id) {
         return contributionsDao.findById(id).get();
+    }
+
+    @Override
+    public List<ContributionsVo> findByUserid(String userid, Pageable pageable) {
+        if (StringUtils.isEmpty(userid)){
+            throw new ErrMsgException("userid不能为空");
+        }
+        if (!usersDao.findById(userid).isPresent()){
+            throw new ErrMsgException("没有该用户");
+        }
+        Page<Contributions> byUserid = contributionsDao.findByUserid(userid, pageable);
+        List<Contributions> content = byUserid.getContent();
+        List<ContributionsVo> contributions = new ArrayList<>();
+        content.forEach(e->{
+            ContributionsVo contributionsVo = new ContributionsVo();
+            if (!StringUtils.isEmpty(e.getFilepath())){
+                Optional<Files> byId = filesDao.findById(e.getFilepath());
+                if (byId.isPresent()){
+                    contributionsVo.setContributions(e);
+                    contributionsVo.setFile(byId.get());
+                }
+            }
+            contributions.add(contributionsVo);
+        });
+        return contributions;
     }
 }

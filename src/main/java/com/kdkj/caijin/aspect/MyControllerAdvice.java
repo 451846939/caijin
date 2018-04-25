@@ -2,6 +2,7 @@ package com.kdkj.caijin.aspect;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -32,6 +33,9 @@ public class MyControllerAdvice {
     @ResponseBody
     public Result processUnauthenticatedException(NativeWebRequest request, Exception e) {
         logExceptionPointcut.logException(Messages.showSysErr(getClass(), e));
+        if (e instanceof HttpMessageNotReadableException){
+            return Result.error("传参错误");
+        }
         e.printStackTrace();
         return Result.error("你没有对应权限或内部错误请联系管理员"); //返回一个逻辑视图名
     }

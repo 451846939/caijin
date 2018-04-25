@@ -4,6 +4,8 @@ import com.kdkj.caijin.dao.AdvertisementDao;
 import com.kdkj.caijin.dao.FilesDao;
 import com.kdkj.caijin.entity.Advertisement;
 import com.kdkj.caijin.entity.Files;
+import com.kdkj.caijin.enums.StateInfo;
+import com.kdkj.caijin.enums.UsersInfo;
 import com.kdkj.caijin.service.AdvertisementService;
 import com.kdkj.caijin.service.FilesService;
 import com.kdkj.caijin.util.CopyObj;
@@ -50,7 +52,10 @@ public class AdvertisementServiceImpl implements AdvertisementService {
 
     @Override
     public List<Advertisement> findByPosition(String position) {
-        return advertisementDao.findByPosition(position);
+        if (StringUtils.isEmpty(position)){
+            throw new ErrMsgException("位置不能为空");
+        }
+        return advertisementDao.findByPositionAndState(position, StateInfo.STATE.getCode());
     }
 
     @Override

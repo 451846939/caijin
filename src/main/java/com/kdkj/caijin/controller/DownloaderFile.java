@@ -7,6 +7,7 @@ import com.kdkj.caijin.service.ContributionsService;
 import com.kdkj.caijin.service.FilesService;
 import com.kdkj.caijin.service.UsersService;
 import com.kdkj.caijin.util.Download;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
@@ -26,6 +27,7 @@ import java.util.List;
  **/
 @Controller
 @RequestMapping("/download")
+@Slf4j
 public class DownloaderFile {
     @Autowired
     private UsersService usersService;
@@ -43,7 +45,7 @@ public class DownloaderFile {
         try {
             download.down(all, request, response);
         } catch (IOException e) {
-            e.printStackTrace();
+            log.error(e.getMessage());
         }
     }
 

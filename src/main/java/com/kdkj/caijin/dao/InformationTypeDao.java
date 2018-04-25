@@ -13,4 +13,5 @@ import org.springframework.stereotype.Repository;
  **/
 @Repository
 public interface InformationTypeDao extends JpaRepository<InformationType, String> {
+    InformationType findByType(String type);
 }

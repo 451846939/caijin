@@ -32,8 +32,15 @@ public class InformationTypeServiceImpl implements InformationTypeService {
     @Override
     public int insert(InformationType informationType) {
         if (informationType != null) {
+            if (StringUtils.isEmpty(informationType.getType())){
+                throw new ErrMsgException("类型名字不能为空");
+            }
+            InformationType byType = informationTypeDao.findByType(informationType.getType());
+            if (byType!=null){
             informationTypeDao.save(informationType);
             return 1;
+            }
+            throw new ErrMsgException("已经有该类型了");
         }
         return 0;
     }

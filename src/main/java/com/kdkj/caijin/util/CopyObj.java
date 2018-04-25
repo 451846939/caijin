@@ -31,7 +31,7 @@ public class CopyObj {
                         if (tFields[i].getName() == "serialVersionUID") {
                             continue;
                         }
-                        System.out.println(tFields[i].getName());
+//                        System.out.println(tFields[i].getName());
                         asmFields[j].set(m, tFields[i].get(t));
                     }
                 }

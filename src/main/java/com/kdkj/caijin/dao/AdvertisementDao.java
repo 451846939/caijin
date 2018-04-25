@@ -14,5 +14,5 @@ import java.util.List;
  **/
 @Repository
 public interface AdvertisementDao extends JpaRepository<Advertisement, String> {
-    List<Advertisement> findByPosition(String position);
+    List<Advertisement> findByPositionAndState(String position,Integer state);
 }

@@ -1,7 +1,9 @@
 package com.kdkj.caijin.service.impl;
 
+import com.kdkj.caijin.dao.RoleDao;
 import com.kdkj.caijin.dao.UsersDao;
 import com.kdkj.caijin.entity.Files;
+import com.kdkj.caijin.entity.Role;
 import com.kdkj.caijin.entity.Users;
 import com.kdkj.caijin.enums.UsersInfo;
 import com.kdkj.caijin.service.FilesService;
@@ -13,6 +15,7 @@ import org.apache.shiro.crypto.hash.SimpleHash;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
@@ -20,6 +23,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.Date;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
@@ -31,9 +35,11 @@ public class UsersServiceImpl implements UsersService {
     private UsersDao usersDao;
     @Autowired
     private FilesService filesService;
+    @Autowired
+    private RoleDao roleDao;
     @Override
     public Page<Users> findAll(PageRequest pageRequest) {
-        return usersDao.findAll(pageRequest);
+        return usersDao.findByState(UsersInfo.STATE.getCode(),pageRequest);
     }
 
     @Override
@@ -113,11 +119,7 @@ public class UsersServiceImpl implements UsersService {
                 String simpleHash = new SimpleHash("SHA-1", usersVo.getPassword()).toString();
                 usersVo.setPassword(simpleHash);
             }
-            Optional<Users> byId = usersDao.findById(usersVo.getId());
-            if (!byId.isPresent()) {
-                throw new ErrMsgException("id不存在");
-            }
-            Users users = byId.get();
+            Users users = checkHaveUser(usersVo.getId());
             CopyObj.copyObjNotNullFieldsAsObj(usersVo, users);
             return 1;
         }
@@ -150,27 +152,19 @@ public class UsersServiceImpl implements UsersService {
      */
     @Override
     public int updateByPwd(String password, String userid) {
-        if (!StringUtils.isEmpty(password)) {
-            Optional<Users> byId = usersDao.findById(userid);
-            if (!byId.isPresent()) {
-                throw new ErrMsgException("id不存在");
-            }
-            Users users = byId.get();
+        if (!StringUtils.isEmpty(password)&&!StringUtils.isEmpty(userid)) {
+            Users users = checkHaveUser(userid);
             String simpleHash = new SimpleHash("SHA-1", password).toString();
             users.setPassword(password);
             return 1;
         }
-        throw new ErrMsgException("密码不能为空");
+        throw new ErrMsgException("密码或者用户id不能为空");
     }
 
     @Override
     public int updateByToken(String token, String userid) {
         if (!StringUtils.isEmpty(userid)) {
-            Optional<Users> byId = usersDao.findById(userid);
-            if (!byId.isPresent()) {
-                throw new ErrMsgException("id不存在");
-            }
-            Users users = byId.get();
+            Users users = checkHaveUser(userid);
             users.setToken(token);
             return 1;
         }
@@ -183,8 +177,74 @@ public class UsersServiceImpl implements UsersService {
     }
 
     @Override
+    public int updateByUpdatetime(Date date, String userid) {
+        if (!StringUtils.isEmpty(userid)) {
+            Users users = checkHaveUser(userid);
+            users.setUpdatetime(date);
+            return 1;
+        }
+        throw new ErrMsgException("用户id不能为空");
+    }
+
+    private Users checkHaveUser(String userid) {
+        Optional<Users> byId = usersDao.findById(userid);
+        if (!byId.isPresent()) {
+            throw new ErrMsgException("id不存在");
+        }
+        return byId.get();
+    }
+
+    @Override
+    public int updateByUsersRole(String userid, String roleid) {
+        if (StringUtils.isEmpty(userid)||StringUtils.isEmpty(roleid)){
+            throw new ErrMsgException("用户id或角色id不能为空");
+        }
+        Users users = checkHaveUser(userid);
+        Optional<Role> byId = roleDao.findById(roleid);
+        if (byId.isPresent()){
+            users.setRole(byId.get().getId());
+            return 1;
+        }
+        throw new ErrMsgException("没有该角色添加失败");
+    }
+
+    @Override
     public Users findByStateAndPhone(Integer state, String phone) {
         return usersDao.findByStateAndPhone(state, phone);
+    }
+
+    @Override
+    public Users updateByProhibit(String userid,Integer prohibit) {
+        Users users = checkHaveUser(userid);
+        users.setProhibit(prohibit);
+        return users;
+    }
+
+    @Override
+    public Users updateByAuthentication(String userid) {
+        Users users = checkHaveUser(userid);
+        Integer authentication = users.getAuthentication();
+        if (authentication !=null){
+            if (authentication==UsersInfo.NOT_AUTHENTICATION.getCode()){
+                users.setAuthentication(UsersInfo.AUTHENTICATION.getCode());
+            }
+            if (authentication==UsersInfo.AUTHENTICATION.getCode()){
+                users.setAuthentication(UsersInfo.NOT_AUTHENTICATION.getCode());
+            }
+        }
+        return users;
+    }
+
+    @Override
+    public Users updateByState(String userid, Integer state) {
+        Users users = checkHaveUser(userid);
+        users.setState(state);
+        return users;
+    }
+
+    @Override
+    public Page<Users> findAllByPhoneOrNickname(String phone, String nickname, Pageable pageable) {
+        return usersDao.findByPhoneContainingOrNicknameContainingAndState(phone,nickname,UsersInfo.STATE.getCode(),pageable);
     }
 
 

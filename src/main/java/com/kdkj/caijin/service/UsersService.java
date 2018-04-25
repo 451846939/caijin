@@ -5,9 +5,11 @@ import com.kdkj.caijin.entity.Users;
 import com.kdkj.caijin.vo.UsersVo;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.Date;
 import java.util.List;
 
 public interface UsersService {
@@ -35,5 +37,17 @@ public interface UsersService {
 
     List<Users> findAll();
 
+    int updateByUpdatetime(Date date,String userid);
+
+    int updateByUsersRole(String userid,String roleid);
+
     Users findByStateAndPhone(Integer state, String phone);
+
+    Users updateByProhibit(String userid,Integer prohibit);
+
+    Users updateByAuthentication(String userid);
+
+    Users updateByState(String userid,Integer state);
+
+    Page<Users> findAllByPhoneOrNickname(String phone, String nickname, Pageable pageable);
 }

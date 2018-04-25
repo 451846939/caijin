@@ -29,6 +29,13 @@ public class RoleServiceImpl implements RoleService {
     @Override
     public Role insert(Role role) {
         if (role != null) {
+            if (StringUtils.isEmpty(role.getName())){
+                throw new ErrMsgException("角色名字不能为空");
+            }
+            Role byName = roleDao.findByName(role.getName());
+            if (byName!=null){
+                throw new ErrMsgException("该名字已经存在");
+            }
             Role save = roleDao.save(role);
             return save;
         }
@@ -81,6 +88,13 @@ public class RoleServiceImpl implements RoleService {
 
     @Override
     public Role findById(String id) {
-        return roleDao.findById(id).get();
+        if (StringUtils.isEmpty(id)){
+            throw new ErrMsgException("id不能为空");
+        }
+        Optional<Role> byId = roleDao.findById(id);
+        if (byId.isPresent()){
+            return byId.get();
+        }
+        return null;
     }
 }
