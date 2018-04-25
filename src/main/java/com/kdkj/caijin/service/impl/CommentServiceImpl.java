@@ -1,12 +1,16 @@
 package com.kdkj.caijin.service.impl;
 
 import com.kdkj.caijin.dao.CommentDao;
+import com.kdkj.caijin.dao.FilesDao;
 import com.kdkj.caijin.dao.InformationDao;
 import com.kdkj.caijin.dao.UsersDao;
 import com.kdkj.caijin.entity.Comment;
+import com.kdkj.caijin.entity.Files;
+import com.kdkj.caijin.entity.Users;
 import com.kdkj.caijin.enums.CommentExamine;
 import com.kdkj.caijin.enums.CommentInfo;
 import com.kdkj.caijin.service.CommentService;
+import com.kdkj.caijin.service.FilesService;
 import com.kdkj.caijin.util.CopyObj;
 import com.kdkj.caijin.util.ErrMsgException;
 import com.kdkj.caijin.vo.CommentVo;
@@ -31,8 +35,8 @@ public class CommentServiceImpl implements CommentService {
     private UsersDao usersDao;
     @Autowired
     private InformationDao informationDao;
-
-    @Override
+    @Autowired
+    private FilesDao filesDao;
     public Page<Comment> findAll(PageRequest pageRequest) {
         return commentDao.findAll(pageRequest);
     }
@@ -114,6 +118,19 @@ public class CommentServiceImpl implements CommentService {
         content.forEach(e -> {
             List<CommentVo> byCommentid = commentDao.findByCommentid(e.getId());
             if (!byCommentid.isEmpty()) {
+                String userid = e.getUserid();
+                if (!StringUtils.isEmpty(userid)){
+                    Optional<Users> byId = usersDao.findById(userid);
+                    if (byId.isPresent()){
+                        e.setUsers(byId.get());
+                        if (!StringUtils.isEmpty(byId.get().getHeadurl())){
+                            Optional<Files> headurl = filesDao.findById(byId.get().getHeadurl());
+                            if (headurl.isPresent()){
+                                e.setFiles(headurl.get());
+                            }
+                        }
+                    }
+                }
                 e.setChildrenComment(byCommentid);
                 setCommentVo(byCommentid);
             }

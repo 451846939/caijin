@@ -1,5 +1,7 @@
 package com.kdkj.caijin.vo;
 
+import com.kdkj.caijin.entity.Files;
+import com.kdkj.caijin.entity.Users;
 import lombok.Data;
 
 import java.util.Date;
@@ -46,6 +48,10 @@ public class CommentVo {
      * 审核状态0表示通过1表示没通过
      */
     private Integer examine;
+    /**文件（头像）*/
+    private Files files;
+    /**用户*/
+    private Users users;
     /**
      * 子回复
      */
