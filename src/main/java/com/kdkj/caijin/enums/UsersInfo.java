@@ -8,6 +8,7 @@ package com.kdkj.caijin.enums;
  **/
 public enum UsersInfo {
     AUTHENTICATION(1, "已经认证"), NOT_AUTHENTICATION(0, "没有认证"),
+    AUTHENTICATION_WAIT(2,"认证等待中"),AUTHENTICATION_FAIL(3,"认证审核失败"),
     STATE(11, "已经启用"), NOT_STATE(10, "没有启用"),
     PROHIBIT(21, "已经封号"), NOT_PROHIBIT(20, "没有封号"),
     MAN(31, "男性"), WOMAN(30, "女性");

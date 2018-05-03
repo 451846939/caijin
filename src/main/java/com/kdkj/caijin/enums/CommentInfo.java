@@ -1,7 +1,8 @@
 package com.kdkj.caijin.enums;
 
 public enum CommentInfo {
-    PARENT_NODE("0", "父节点");
+    PARENT_NODE("0", "父节点"),PRAISE_ADD("add","加点赞"),PARISE_SUB("sub","减点赞");
+
     private String code;
 
     private String message;
