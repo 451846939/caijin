@@ -1,6 +1,7 @@
 package com.kdkj.caijin.service;
 
 import com.kdkj.caijin.entity.Comment;
+import com.kdkj.caijin.vo.CommentPraise;
 import com.kdkj.caijin.vo.CommentVo;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -21,6 +22,6 @@ public interface CommentService {
 
     //    List<CommentVo> findByCommentid(String commentid);
     int deleteByid(String id);
-
+    int updateByPraiseAndUser(CommentPraise commentPraise);
     Page<Comment> findByContent(String content, Pageable pageable);
 }
