@@ -5,6 +5,7 @@ import com.kdkj.caijin.entity.Pageinfo;
 import com.kdkj.caijin.service.CommentService;
 import com.kdkj.caijin.util.PageUtis;
 import com.kdkj.caijin.util.Result;
+import com.kdkj.caijin.vo.CommentPraise;
 import com.kdkj.caijin.vo.CommentVo;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
@@ -79,7 +80,15 @@ public class CommentController {
         commentService.deleteByid(id);
         return Result.ok();
     }
-
+    @PostMapping("/updateByPraise")
+    public Result updateByPraiseAndUser(@RequestBody CommentPraise commentPraise){
+        try {
+            commentService.updateByPraiseAndUser(commentPraise);
+            return Result.ok();
+        } catch (Exception e) {
+            return Result.error(e.getMessage());
+        }
+    }
     @ApiImplicitParams({
             @ApiImplicitParam(name = "pageNum", value = "页数", dataType = "int", paramType = "query", required = false),
             @ApiImplicitParam(name = "pageSize", value = "页长度", dataType = "int", paramType = "query", required = true),
