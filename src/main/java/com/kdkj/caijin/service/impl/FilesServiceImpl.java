@@ -21,6 +21,7 @@ import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Optional;
+import java.util.UUID;
 
 @Service
 @Transactional
@@ -68,10 +69,16 @@ public class FilesServiceImpl implements FilesService {
         if (!newfile.exists()) {
             newfile.mkdir();
         }
+        String originalFilename = file.getOriginalFilename();
+        String uuid = UUID.randomUUID().toString();
+        String replace = StringUtils.replace(uuid, "-", "");
+        int length = originalFilename.length();
+        int i = originalFilename.lastIndexOf(".");
+        String substring = originalFilename.substring(i, length);
         String filename = new SimpleDateFormat("yyyy-MM-ddHHmmss")
-                .format(new Date()) + file.getOriginalFilename();
+                .format(new Date()) + replace+substring;
         Files files = new Files();
-        files.setName(file.getOriginalFilename());
+        files.setName(originalFilename);
         files.setNewname(filename);
         files.setPath(path);
         filesDao.save(files);

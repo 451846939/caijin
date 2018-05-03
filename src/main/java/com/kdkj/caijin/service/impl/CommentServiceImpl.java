@@ -10,9 +10,9 @@ import com.kdkj.caijin.entity.Users;
 import com.kdkj.caijin.enums.CommentExamine;
 import com.kdkj.caijin.enums.CommentInfo;
 import com.kdkj.caijin.service.CommentService;
-import com.kdkj.caijin.service.FilesService;
 import com.kdkj.caijin.util.CopyObj;
 import com.kdkj.caijin.util.ErrMsgException;
+import com.kdkj.caijin.vo.CommentPraise;
 import com.kdkj.caijin.vo.CommentVo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -37,6 +37,7 @@ public class CommentServiceImpl implements CommentService {
     private InformationDao informationDao;
     @Autowired
     private FilesDao filesDao;
+
     public Page<Comment> findAll(PageRequest pageRequest) {
         return commentDao.findAll(pageRequest);
     }
@@ -93,7 +94,7 @@ public class CommentServiceImpl implements CommentService {
 
     @Override
     public Page<CommentVo> findByInformationidAndCommentid(String informationid, Pageable pageable) {
-        Page<CommentVo> commentsPage = commentDao.findByInformationidAndExamineAndCommentidIsNullOrCommentid(informationid, CommentExamine.NOT_EXAMINE.getCode(), CommentInfo.PARENT_NODE.getCode(), pageable);
+        Page<CommentVo> commentsPage = commentDao.findByInformationidAndExamineAndCommentid(informationid, CommentExamine.NOT_EXAMINE.getCode(), CommentInfo.PARENT_NODE.getCode(), pageable);
         List<CommentVo> content = commentsPage.getContent();
         //首先循环查出来的comment然后把id进行查询看是否有子节点
         setCommentVo(content);
@@ -110,6 +111,29 @@ public class CommentServiceImpl implements CommentService {
     }
 
     @Override
+    public int updateByPraiseAndUser(CommentPraise commentPraise) {
+        if (StringUtils.isEmpty(commentPraise.getId())){
+            Optional<Comment> byId = commentDao.findById(commentPraise.getId());
+            if (byId.isPresent()){
+                Comment comment = byId.get();
+                Integer praise = comment.getPraise();
+                if (CommentInfo.PRAISE_ADD.getCode().equals(commentPraise.getAction())){
+                    praise+=1;
+                    comment.setPraise(praise);
+                }
+                if (CommentInfo.PARISE_SUB.getCode().equals(commentPraise.getAction())){
+                    if (praise>0){
+                        praise-=1;
+                        comment.setPraise(praise);
+                    }
+                }
+            }
+            return 1;
+        }
+        throw new ErrMsgException("id不能为空");
+    }
+
+    @Override
     public Page<Comment> findByContent(String content, Pageable pageable) {
         return commentDao.findByContentContaining(content, pageable);
     }
@@ -117,20 +141,20 @@ public class CommentServiceImpl implements CommentService {
     private void setCommentVo(List<CommentVo> content) {
         content.forEach(e -> {
             List<CommentVo> byCommentid = commentDao.findByCommentid(e.getId());
-            if (!byCommentid.isEmpty()) {
-                String userid = e.getUserid();
-                if (!StringUtils.isEmpty(userid)){
-                    Optional<Users> byId = usersDao.findById(userid);
-                    if (byId.isPresent()){
-                        e.setUsers(byId.get());
-                        if (!StringUtils.isEmpty(byId.get().getHeadurl())){
-                            Optional<Files> headurl = filesDao.findById(byId.get().getHeadurl());
-                            if (headurl.isPresent()){
-                                e.setFiles(headurl.get());
-                            }
+            String userid = e.getUserid();
+            if (!StringUtils.isEmpty(userid)) {
+                Optional<Users> byId = usersDao.findById(userid);
+                if (byId.isPresent()) {
+                    e.setUsers(byId.get());
+                    if (!StringUtils.isEmpty(byId.get().getHeadurl())) {
+                        Optional<Files> headurl = filesDao.findById(byId.get().getHeadurl());
+                        if (headurl.isPresent()) {
+                            e.setFiles(headurl.get());
                         }
                     }
                 }
+            }
+            if (!byCommentid.isEmpty()) {
                 e.setChildrenComment(byCommentid);
                 setCommentVo(byCommentid);
             }

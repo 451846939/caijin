@@ -91,6 +91,7 @@ public class UsersServiceImpl implements UsersService {
     public Files updateUploadIdcar(String userid, MultipartFile file) throws IOException {
         Files upload = filesService.updateUpload(file);
         Users byId = this.findById(userid);
+        byId.setAuthentication(UsersInfo.AUTHENTICATION_WAIT.getCode());
         byId.setIdcarurl(upload.getId());
         return upload;
     }
@@ -228,8 +229,11 @@ public class UsersServiceImpl implements UsersService {
             if (authentication==UsersInfo.NOT_AUTHENTICATION.getCode()){
                 users.setAuthentication(UsersInfo.AUTHENTICATION.getCode());
             }
+            if (authentication==UsersInfo.AUTHENTICATION_WAIT.getCode()){
+                users.setAuthentication(UsersInfo.AUTHENTICATION.getCode());
+            }
             if (authentication==UsersInfo.AUTHENTICATION.getCode()){
-                users.setAuthentication(UsersInfo.NOT_AUTHENTICATION.getCode());
+                users.setAuthentication(UsersInfo.AUTHENTICATION_FAIL.getCode());
             }
         }
         return users;
