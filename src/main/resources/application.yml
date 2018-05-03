@@ -10,6 +10,11 @@ swagger:
     #开启MyBatis的二级缓存
 #    cache-enabled: true
 spring:
+  http:
+    encoding:
+      charset: UTF-8
+      enabled: true
+      force: true
   jpa:
     database: mysql
     show-sql: false
