@@ -19,11 +19,15 @@ import java.util.List;
  **/
 @Repository
 public interface CommentDao extends JpaRepository<Comment, String> {
-    @Query("select new com.kdkj.caijin.vo.CommentVo(c.id,c.userid,c.content,c.commentid,c.createtime,c.updatetime,c.praise,c.informationid,c.examine) from Comment c where c.informationid=?1 and c.examine=?2 and c.commentid is null or c.commentid=?3")
-    Page<CommentVo> findByInformationidAndExamineAndCommentidIsNullOrCommentid(String informationid, Integer examine, String Commentid, Pageable pageable);
+    @Query("select new com.kdkj.caijin.vo.CommentVo(c.id,c.userid,c.content,c.commentid,c.createtime,c.updatetime,c.praise,c.informationid,c.examine) from Comment c where c.informationid=?1 and c.examine=?2 and  c.commentid=?3")
+//c.commentid is null or
+//CommentidIsNullOr
+    Page<CommentVo> findByInformationidAndExamineAndCommentid(String informationid, Integer examine, String Commentid, Pageable pageable);
 
     @Query("select new com.kdkj.caijin.vo.CommentVo(c.id,c.userid,c.content,c.commentid,c.createtime,c.updatetime,c.praise,c.informationid,c.examine) from Comment c where c.commentid=?1")
     List<CommentVo> findByCommentid(String commentid);
+
+    Comment findByIdAndUserid(String id,String userid);
 
     Page<Comment> findByContentContaining(String content, Pageable pageable);
 }
