@@ -112,7 +112,7 @@ public class CommentServiceImpl implements CommentService {
 
     @Override
     public int updateByPraiseAndUser(CommentPraise commentPraise) {
-        if (StringUtils.isEmpty(commentPraise.getId())){
+        if (!StringUtils.isEmpty(commentPraise.getId())){
             Optional<Comment> byId = commentDao.findById(commentPraise.getId());
             if (byId.isPresent()){
                 Comment comment = byId.get();
