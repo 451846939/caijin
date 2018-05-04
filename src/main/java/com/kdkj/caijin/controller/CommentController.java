@@ -30,6 +30,7 @@ public class CommentController {
     public Result addComment(@RequestBody Comment comment) {
         Comment insert = null;
         try {
+            comment.setPraise(0);
             insert = commentService.insert(comment);
         } catch (Exception e) {
             return Result.error(e.getMessage());
